@@ -1,0 +1,9 @@
+{
+  "acqId": 970415,
+  "accountNo": 113366668888,
+  "accountName": "QUY VAC XIN PHONG CHONG COVID",
+  "amount": 79000,
+  "addInfo": "Ung Ho Quy Vac Xin",
+  "template": "compact",
+  "format": "text"
+}
