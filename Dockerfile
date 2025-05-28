@@ -14,7 +14,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-1809 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["nuget.config", "."]
+# COPY ["nuget.config", "."]
 COPY ["1-SPR25_SWD392_ClothingCustomization/1-SPR25_SWD392_ClothingCustomization.csproj", "1-SPR25_SWD392_ClothingCustomization/"]
 COPY ["2-Service/2-Service.csproj", "2-Service/"]
 COPY ["3-Repository/3-Repository.csproj", "3-Repository/"]
