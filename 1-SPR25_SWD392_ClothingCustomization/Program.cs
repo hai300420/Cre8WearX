@@ -191,7 +191,11 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction() || app.Env
     });
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
+if (!app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
 app.UseStaticFiles();
 app.UseCors("AllowAll");
 app.UseRouting();
