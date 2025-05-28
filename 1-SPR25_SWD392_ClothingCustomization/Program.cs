@@ -27,6 +27,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient(); // Needed for HttpClientFactory
 
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.HttpsPort = null; // Prevents redirect loop
+});
+
 
 // Đăng ký Authentication với JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
