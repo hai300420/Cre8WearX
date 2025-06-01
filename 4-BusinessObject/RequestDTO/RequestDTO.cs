@@ -460,5 +460,38 @@ namespace BusinessObject.RequestDTO
             public List<decimal> Data { get; set; } = new();
         }
 
+
+        public class BankTransferRequestDto
+        {
+            public int OrderId { get; set; }
+        }
+
+        public class MoMoReturnDto
+        {
+            public string orderId { get; set; }
+            public string requestId { get; set; }
+            public int resultCode { get; set; }
+            public string message { get; set; }
+            public string extraData { get; set; }
+            public string signature { get; set; }
+        }
+
+        public class MoMoIpnDto
+        {
+            public string partnerCode { get; set; }
+            public string orderId { get; set; }
+            public string requestId { get; set; }
+            public long amount { get; set; }
+            public string orderInfo { get; set; }
+            public string orderType { get; set; }
+            public long transId { get; set; }
+            public int resultCode { get; set; }
+            public string message { get; set; }
+            public string payType { get; set; }
+            public long responseTime { get; set; }
+            public string extraData { get; set; }
+            public string signature { get; set; }
+        }
+
     }
 }

@@ -628,6 +628,9 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             return Created(payUrl, payUrl);
         }
 
+        
+
+
         [HttpGet("MoMo/Callback")]
         public async Task<IActionResult> Callback([FromBody] MoMoCallbackModel callback)
         {
@@ -694,6 +697,140 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             {
                 return Redirect("https://swd-fe-nine.vercel.app/payment-error?message=" + WebUtility.UrlEncode(ex.Message));
             }
+        }
+
+        [HttpPost("MoMo/BankTransfer")]
+        public async Task<ActionResult<string>> CreateMoMoBankTransferPaymentUrl([FromBody] BankTransferRequestDto request)
+        {
+            var order = await _orderService.GetOrderByIdAsync(request.OrderId);
+            if (order == null)
+                return BadRequest("Order not found");
+
+            string endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
+            string requestId = Guid.NewGuid().ToString();
+            string orderIdStr = request.OrderId.ToString();
+            string orderInfo = $"Thanh toán đơn hàng #{request.OrderId}";
+            string amount = ((int)order.TotalPrice).ToString();
+            string requestType = "payWithATM";
+            string extraData = ""; // optional info you may want to store
+
+            string rawHash = $"accessKey={_momoConfig.AccessKey}&amount={amount}&extraData={extraData}&ipnUrl={_momoConfig.NotifyUrl}&orderId={orderIdStr}&orderInfo={orderInfo}&partnerCode={_momoConfig.PartnerCode}&redirectUrl={_momoConfig.ReturnUrl}&requestId={requestId}&requestType={requestType}";
+            string signature = MoMoSecurity.SignSHA256(rawHash, _momoConfig.SecretKey);
+
+            var requestBody = new
+            {
+                partnerCode = _momoConfig.PartnerCode,
+                partnerName = "YourStore",
+                storeId = "YourStoreId",
+                requestId = requestId,
+                amount = amount,
+                orderId = orderIdStr,
+                orderInfo = orderInfo,
+                redirectUrl = _momoConfig.ReturnUrl,
+                ipnUrl = _momoConfig.NotifyUrl,
+                lang = "vi",
+                extraData = extraData,
+                requestType = requestType,
+                signature = signature
+            };
+
+            using var client = new HttpClient();
+            var content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+            var response = await client.PostAsync(endpoint, content);
+            var responseJson = await response.Content.ReadAsStringAsync();
+
+            var json = JObject.Parse(responseJson);
+            var payUrl = json["payUrl"]?.ToString();
+            var resultCode = json["resultCode"]?.ToObject<int>() ?? -1;
+
+            if (resultCode != 0 || string.IsNullOrEmpty(payUrl))
+            {
+                var message = json["message"]?.ToString() ?? "Unknown error";
+                return BadRequest($"MoMo error: {message}");
+            }
+
+            return Created(payUrl, payUrl);
+        }
+
+        [HttpPost("MoMo/IPN")]
+        public async Task<IActionResult> MoMoIpn([FromBody] MoMoIpnDto ipnData)
+        {
+            // Step 1: Verify signature
+            var rawHash = $"accessKey={_momoConfig.AccessKey}" +
+                          $"&amount={ipnData.amount}" +
+                          $"&extraData={ipnData.extraData}" +
+                          $"&message={ipnData.message}" +
+                          $"&orderId={ipnData.orderId}" +
+                          $"&orderInfo={ipnData.orderInfo}" +
+                          $"&orderType={ipnData.orderType}" +
+                          $"&partnerCode={ipnData.partnerCode}" +
+                          $"&payType={ipnData.payType}" +
+                          $"&requestId={ipnData.requestId}" +
+                          $"&responseTime={ipnData.responseTime}" +
+                          $"&resultCode={ipnData.resultCode}" +
+                          $"&transId={ipnData.transId}";
+
+            string calculatedSignature = MoMoSecurity.SignSHA256(rawHash, _momoConfig.SecretKey);
+            if (calculatedSignature != ipnData.signature)
+                return BadRequest("Invalid signature");
+
+            if (ipnData.resultCode == 0)
+            {
+                int orderId = int.Parse(ipnData.orderId);
+
+                var payment = new Payment
+                {
+                    OrderId = orderId,
+                    TotalAmount = ipnData.amount,
+                    DepositPaid = ipnData.amount,
+                    DepositAmount = ipnData.amount,
+                    PaymentDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone)
+                };
+
+                await _paymentService.SavePaymentAsync(payment);
+
+                var order = await _orderService.GetOrderByIdAsync(orderId);
+                if (order == null)
+                    return BadRequest("Order not found");
+
+                var response = await _orderStageService.GetOrderStageByOrderIdAsync(orderId);
+                if (response.Status == 200 && response.Data is OrderStageResponseDTO stageDto)
+                {
+                    var updatedStage = new OrderStage
+                    {
+                        OrderStageId = stageDto.OrderStageId,
+                        OrderId = stageDto.OrderId,
+                        OrderStageName = "Purchased",
+                        UpdatedDate = DateTime.UtcNow
+                    };
+                    await _orderStageService.UpdateOrderStageAsync(updatedStage);
+                }
+                else
+                {
+                    var newStage = new OrderStageCreateDTO
+                    {
+                        OrderId = orderId,
+                        OrderStageName = "Purchased",
+                        UpdatedDate = DateTime.UtcNow
+                    };
+                    await _orderStageService.CreateOrderStageAsync(newStage);
+                }
+            }
+
+            return Ok(); // Must return 200 OK so MoMo stops retrying
+        }
+
+
+
+        [HttpGet("MoMo/Return")]
+        public IActionResult MoMoReturn([FromQuery] MoMoReturnDto result)
+        {
+            if (result.resultCode == 0)
+            {
+                return Redirect("https://swd-fe-nine.vercel.app/order/success?orderId=" + result.orderId);
+            }
+
+            return Redirect("https://swd-fe-nine.vercel.app/order/failed?orderId=" + result.orderId);
         }
 
 

@@ -21,6 +21,8 @@ namespace _2_Service.Service
         Task<decimal> CalculateRevenueAsync(int? day, int? month, int? year);
         Task<List<ProductOrderQuantityDto>> GetOrderedProductQuantities();
         Task<RevenueDto> GetMonthlyRevenueAsync(int year);
+
+        Task<bool> MarkOrderAsPaidAsync(int orderId);
     }
 
     public class OrderService : IOrderService
@@ -250,6 +252,25 @@ namespace _2_Service.Service
             };
 
             return revenueDto;
+        }
+
+        public async Task<bool> MarkOrderAsPaidAsync(int orderId)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (order == null)
+                return false;
+
+            // Add a new OrderStage to mark payment completion
+            var paymentStage = new OrderStage
+            {
+                OrderId = orderId,
+                OrderStageName = "Payment Completed", // or "Đã thanh toán"
+                UpdatedDate = DateTime.Now
+            };
+
+            await _orderStageRepository.AddOrderStageAsync(paymentStage);
+
+            return true;
         }
 
 
