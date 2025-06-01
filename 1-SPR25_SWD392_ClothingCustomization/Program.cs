@@ -19,6 +19,7 @@ using _2_Service.Vnpay;
 using VNPAY.NET;
 using _4_BusinessObject.RequestDTO;
 using _2_Service.ThirdPartyService;
+using _2_Service.Momo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -155,6 +156,8 @@ builder.Services.AddScoped<IVnPayService, VnPayService>();
 builder.Services.AddSingleton<IVnpay, Vnpay>();
 // Register MoMo configuration
 builder.Services.Configure<MoMoConfig>(builder.Configuration.GetSection("MoMo"));
+// Đăng ký MoMo Service
+builder.Services.AddScoped<IMoMoService, MoMoService>();
 // Add Cloudinary
 builder.Services.AddSingleton<CloudinaryService>();
 
