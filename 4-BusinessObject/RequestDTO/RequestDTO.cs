@@ -67,13 +67,15 @@ namespace BusinessObject.RequestDTO
                 [Required(ErrorMessage = "Price is required")]
                 [Range(1, double.MaxValue, ErrorMessage = "Price must be greater than 0")]
    
-            public decimal Price { get; set; }
+                public decimal Price { get; set; }
 
-            [Required(ErrorMessage = "Stock is required")]
-            [Range(1, int.MaxValue, ErrorMessage = "Stock must be at least 1")]
-            public int StockInStorage { get; set; }
+                [Required(ErrorMessage = "Stock is required")]
+                [Range(1, int.MaxValue, ErrorMessage = "Stock must be at least 1")]
+                public int StockInStorage { get; set; }
 
                 public string? Image { get; set; }
+
+                public IFormFile? ImageFile { get; set; }
                 public string? Description { get; set; }
             }
         public class ProductUpdateDTO

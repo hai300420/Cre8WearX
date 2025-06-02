@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using _2_Service.ThirdPartyService;
 using AutoMapper;
 using BusinessObject;
 using BusinessObject.Model;
@@ -24,12 +25,14 @@ namespace Service.Service
     public class ProductService : IProductService
     {
         private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
+        private readonly IMapper _mapper;
+        private readonly CloudinaryService _cloudinaryService;
 
-        public ProductService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, CloudinaryService cloudinaryService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _cloudinaryService = cloudinaryService;
         }
 
         //public async Task<ResponseDTO> CreateProductAsync(ProductCreateDTO productDto)
@@ -95,6 +98,7 @@ namespace Service.Service
             try
             {
                 var product = _mapper.Map<Product>(productDto);
+
                 await _unitOfWork.ProductRepository.AddAsync(product);
                 await _unitOfWork.SaveChangesAsync();
 

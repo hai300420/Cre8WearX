@@ -1,4 +1,5 @@
-﻿    using BusinessObject;
+﻿using _2_Service.ThirdPartyService;
+using BusinessObject;
 using BusinessObject.ResponseDTO;
 using Microsoft.AspNetCore.Mvc;
 using Service.Service;
@@ -11,10 +12,12 @@ namespace SPR25_SWD392_ClothingCustomization.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly CloudinaryService _cloudinaryService;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService, CloudinaryService cloudinaryService)
         {
             _productService = productService;
+            _cloudinaryService = cloudinaryService;
         }
 
         [HttpGet]
@@ -66,12 +69,26 @@ namespace SPR25_SWD392_ClothingCustomization.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductCreateDTO productDto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateProduct([FromForm] ProductCreateDTO productDto)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
+
+                // Upload image if provided
+                if (productDto.ImageFile != null)
+                {
+                    using var ms = new MemoryStream();
+                    await productDto.ImageFile.CopyToAsync(ms);
+                    var imageBytes = ms.ToArray();
+                    var base64Image = Convert.ToBase64String(imageBytes);
+
+                    // Upload to Cloudinary
+                    var imageUrl = await _cloudinaryService.UploadBase64ImageAsync(base64Image, productDto.ImageFile.FileName);
+                    productDto.Image = imageUrl; // Set URL back in DTO
+                }
 
                 var result = await _productService.CreateProductAsync(productDto);
                 return result.Status == Const.SUCCESS_CREATE_CODE

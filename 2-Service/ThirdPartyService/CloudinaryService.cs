@@ -28,10 +28,16 @@ namespace _2_Service.ThirdPartyService
             byte[] imageBytes = Convert.FromBase64String(base64);
             using var stream = new MemoryStream(imageBytes);
 
+            // Extract file extension (e.g., ".jpg")
+            var extension = Path.GetExtension(fileName);
+
+            // Create a unique filename using a timestamp and GUID
+            var uniqueFileName = $"{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid()}{extension}";
+
             var uploadParams = new ImageUploadParams()
             {
-                File = new FileDescription(fileName, stream),
-                PublicId = $"qr_codes/{fileName}",
+                File = new FileDescription(uniqueFileName, stream),
+                PublicId = $"products/{uniqueFileName}",
                 Overwrite = true
             };
 
