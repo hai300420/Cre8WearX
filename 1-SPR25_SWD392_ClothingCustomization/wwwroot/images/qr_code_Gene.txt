@@ -7,3 +7,20 @@
   "template": "compact",
   "format": "text"
 }
+
+
+{
+  "productId": 1,
+  "userId": 5,
+  "shirtColor": "Red",
+  "fullImage": "https://res.cloudinary.com/dasv9zzcl/image/upload/v1748792400/mat-truoc_1_xltql5.png",
+  "base64Image": "",
+  "description": "Custom red shirt with logo",
+  "recipientName": "John Doe",
+  "deliveryAddress": "123 Main St, City",
+  "shippingMethod": "Standard",
+  "shippingFee": 5.0,
+  "notes": "Please deliver after 5 PM",
+  "quantity": 1,
+  "deliveryDate": "2025-06-10T15:00:00Z"
+}

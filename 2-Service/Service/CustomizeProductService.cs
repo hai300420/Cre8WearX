@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 using _3_Repository.IRepository;
 using AutoMapper;
 using BusinessObject.Model;
+using CloudinaryDotNet.Actions;
+using CloudinaryDotNet;
 using Repository.IRepository;
 using Service;
 using static BusinessObject.RequestDTO.RequestDTO;
 using static BusinessObject.ResponseDTO.ResponseDTO;
+using _2_Service.ThirdPartyService;
 
 namespace _2_Service.Service
 {
@@ -40,18 +43,21 @@ namespace _2_Service.Service
         private readonly IOrderRepository _orderRepo;
         private readonly IOrderStageRepository _orderStageRepo;
         private readonly IProductRepository _productRepository;
+        private readonly CloudinaryService _cloudinaryService;
         public CustomizeProductService(
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ICustomizeProductRepository customizeProductRepo,
         IOrderRepository orderRepo,
-        IOrderStageRepository orderStageRepo)
+        IOrderStageRepository orderStageRepo,
+        CloudinaryService cloudinaryService)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _customizeProductRepository = customizeProductRepo;
             _orderRepo = orderRepo;
             _orderStageRepo = orderStageRepo;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<IEnumerable<CustomizeProduct>> GetAllCustomizeProducts()
@@ -302,6 +308,8 @@ namespace _2_Service.Service
 
                 // 2. Create CustomizeProduct using the tuple mapping
                 var customizeProduct = _mapper.Map<CustomizeProduct>((dto, product));
+
+                customizeProduct.FullImage = await _cloudinaryService.UploadImageFromUrlAsync(product.Image,"product_copy.png");
 
                 await _customizeProductRepository.AddAsync(customizeProduct);
                 await _unitOfWork.SaveChangesAsync();

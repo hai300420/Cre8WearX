@@ -50,5 +50,34 @@ namespace _2_Service.ThirdPartyService
 
             return uploadResult.SecureUrl.AbsoluteUri;
         }
+
+        public async Task<string> UploadImageFromUrlAsync(string imageUrl, string fileName)
+        {
+            using var httpClient = new HttpClient();
+            var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
+            using var stream = new MemoryStream(imageBytes);
+
+            // Create a unique filename
+            var extension = Path.GetExtension(fileName);
+            var uniqueFileName = $"{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid()}{extension}";
+
+            var uploadParams = new ImageUploadParams()
+            {
+                File = new FileDescription(uniqueFileName, stream),
+                PublicId = $"products/{uniqueFileName}",
+                Overwrite = true
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+            if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                throw new Exception("Image upload failed: " + uploadResult.Error?.Message);
+            }
+
+            return uploadResult.SecureUrl.AbsoluteUri;
+        }
+
+
     }
 }

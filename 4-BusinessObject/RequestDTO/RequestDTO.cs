@@ -20,8 +20,8 @@ namespace BusinessObject.RequestDTO
         }
         #region Khang
 
-       
-            public class CreateCustomizeDto
+
+        public class CreateCustomizeDto
         {
             [Required]
             public int ProductId { get; set; }
@@ -31,6 +31,10 @@ namespace BusinessObject.RequestDTO
 
             [Required]
             public string ShirtColor { get; set; }
+
+            public string? FullImage { get; set; }
+
+            public string? Base64Image { get; set; }
 
             public string Description { get; set; }
 
@@ -54,30 +58,38 @@ namespace BusinessObject.RequestDTO
 
             public DateTime? DeliveryDate { get; set; }
         }
-        
-            public class ProductCreateDTO
-            {
-                [Required(ErrorMessage = "Category ID is required")]
-                public int CategoryId { get; set; }
 
-                [Required(ErrorMessage = "Product name is required")]
-                [StringLength(100, ErrorMessage = "Product name cannot exceed 100 characters")]
-                public string ProductName { get; set; } = null!;
+        public class UpdateCustomizeProductDto
+        {
+            public string? ShirtColor { get; set; }
+            public string? Description { get; set; }
+            public decimal? Price { get; set; }
+            public string? Base64Image { get; set; }
+        }
 
-                [Required(ErrorMessage = "Price is required")]
-                [Range(1, double.MaxValue, ErrorMessage = "Price must be greater than 0")]
-   
-                public decimal Price { get; set; }
+        public class ProductCreateDTO
+        {
+            [Required(ErrorMessage = "Category ID is required")]
+            public int CategoryId { get; set; }
 
-                [Required(ErrorMessage = "Stock is required")]
-                [Range(1, int.MaxValue, ErrorMessage = "Stock must be at least 1")]
-                public int StockInStorage { get; set; }
+            [Required(ErrorMessage = "Product name is required")]
+            [StringLength(100, ErrorMessage = "Product name cannot exceed 100 characters")]
+            public string ProductName { get; set; } = null!;
 
-                public string? Image { get; set; }
+            [Required(ErrorMessage = "Price is required")]
+            [Range(1, double.MaxValue, ErrorMessage = "Price must be greater than 0")]
 
-                public IFormFile? ImageFile { get; set; }
-                public string? Description { get; set; }
-            }
+            public decimal Price { get; set; }
+
+            [Required(ErrorMessage = "Stock is required")]
+            [Range(1, int.MaxValue, ErrorMessage = "Stock must be at least 1")]
+            public int StockInStorage { get; set; }
+
+            public string? Image { get; set; }
+
+            public IFormFile? ImageFile { get; set; }
+            public string? Description { get; set; }
+        }
         public class ProductUpdateDTO
         {
             public int ProductId { get; set; }
