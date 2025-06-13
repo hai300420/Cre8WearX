@@ -80,8 +80,19 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
 
             // Return in json form
             // return Ok(new { token = jwtToken });
-
             return Redirect($"https://cre8wrearx.vercel.app/?token={jwtToken}");
+
+            var html = $@"
+                    <html>
+                    <body>
+                    <script>
+                        window.opener.postMessage({{ token: '{jwtToken}' }}, 'https://cre8wrearx.vercel.app');
+                        window.close();
+                    </script>
+                    </body>
+                    </html>";
+
+            return Content(html, "text/html");
         }
     }
 }
