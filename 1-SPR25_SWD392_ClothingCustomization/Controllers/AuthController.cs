@@ -78,7 +78,10 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             // Delegate to UserService to handle login and JWT generation
             var jwtToken = await _userService.GoogleLoginAsync(idToken);
 
-            return Ok(new { token = jwtToken });
+            // Return in json form
+            // return Ok(new { token = jwtToken });
+
+            return Redirect($"https://cre8wrearx.vercel.app/?token={jwtToken}");
         }
     }
 }

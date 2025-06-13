@@ -135,7 +135,7 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                 if (!paymentResult.IsSuccess)
                 {
                     // Chuyển hướng đến trang thất bại nếu thanh toán không thành công
-                    return Redirect("https://swd-fe-nine.vercel.app/payment-failed");
+                    return Redirect("https://cre8wrearx.vercel.app/payment-failed");
                 }
 
                 // Extract orderId từ vnp_TxnRef
@@ -223,12 +223,12 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                 }
 
                 // Chuyển hướng đến trang thành công
-                return Redirect("https://swd-fe-nine.vercel.app/payment-success");
+                return Redirect("https://cre8wrearx.vercel.app/payment-success");
             }
             catch (Exception ex)
             {
                 // Chuyển hướng đến trang lỗi nếu có exception
-                return Redirect("https://swd-fe-nine.vercel.app/payment-error?message=" + WebUtility.UrlEncode(ex.Message));
+                return Redirect("https://cre8wrearx.vercel.app/payment-error?message=" + WebUtility.UrlEncode(ex.Message));
             }
         }
 
@@ -376,7 +376,7 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         //    try
         //    {
         //        if (callback.ResultCode != 0)
-        //            return Redirect("https://swd-fe-nine.vercel.app/payment-failed");
+        //            return Redirect("https://cre8wrearx.vercel.app/payment-failed");
 
         //        if (!int.TryParse(callback.OrderId, out int orderId))
         //            return BadRequest("Invalid Order ID");
@@ -434,7 +434,7 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         //    }
         //    catch (Exception ex)
         //    {
-        //        return Redirect("https://swd-fe-nine.vercel.app/payment-error?message=" + WebUtility.UrlEncode(ex.Message));
+        //        return Redirect("https://cre8wrearx.vercel.app/payment-error?message=" + WebUtility.UrlEncode(ex.Message));
         //    }
         //}
 
@@ -567,10 +567,10 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         {
             if (result.resultCode == 0)
             {
-                return Redirect("https://swd-fe-nine.vercel.app/payment-success");
+                return Redirect("https://cre8wrearx.vercel.app/payment-success");
             }
 
-            return Redirect("https://swd-fe-nine.vercel.app/payment-failed");
+            return Redirect("https://cre8wrearx.vercel.app/payment-failed");
         }
 
 
@@ -661,12 +661,12 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
 
                 if (!_momoService.ValidateSignature(query, signature))
                 {
-                    return Redirect("https://swd-fe-nine.vercel.app/payment-failed");
+                    return Redirect("https://cre8wrearx.vercel.app/payment-failed");
                 }
 
                 if (query["resultCode"] != "0")
                 {
-                    return Redirect("https://swd-fe-nine.vercel.app/payment-failed");
+                    return Redirect("https://cre8wrearx.vercel.app/payment-failed");
                 }
 
                 if (!int.TryParse(query["orderId"], out int orderId))
@@ -747,11 +747,11 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                     }
                 }
 
-                return Redirect("https://swd-fe-nine.vercel.app/payment-success");
+                return Redirect("https://cre8wrearx.vercel.app/payment-success");
             }
             catch (Exception ex)
             {
-                return Redirect("https://swd-fe-nine.vercel.app/payment-error?message=" + WebUtility.UrlEncode(ex.Message));
+                return Redirect("https://cre8wrearx.vercel.app/payment-error?message=" + WebUtility.UrlEncode(ex.Message));
             }
         }
 
