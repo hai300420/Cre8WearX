@@ -20,10 +20,15 @@ using VNPAY.NET;
 using _4_BusinessObject.RequestDTO;
 using _2_Service.ThirdPartyService;
 using _2_Service.Momo;
+using Google;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// Load both base and environment-specific configs
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient(); // Needed for HttpClientFactory
@@ -206,7 +211,19 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapGet("/", () => "API is running!");
+app.MapGet("/", async (ClothesCusShopContext db) =>
+{
+    try
+    {
+        // Just try querying the DB (e.g., check if the User table exists or count rows)
+        var userCount = await db.Users.CountAsync();
+        return Results.Ok($"API is running! Connected to DB. User count: {userCount}");
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem("API is running, but DB connection failed: " + ex.Message);
+    }
+});
 
 
 app.Run();

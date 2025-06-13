@@ -309,6 +309,7 @@ namespace _2_Service.Service
                 // 2. Create CustomizeProduct using the tuple mapping
                 var customizeProduct = _mapper.Map<CustomizeProduct>((dto, product));
 
+                // Create origin image into a copy
                 customizeProduct.FullImage = await _cloudinaryService.UploadImageFromUrlAsync(product.Image,"product_copy.png");
 
                 await _customizeProductRepository.AddAsync(customizeProduct);
