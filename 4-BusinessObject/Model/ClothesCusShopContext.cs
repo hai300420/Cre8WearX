@@ -84,8 +84,11 @@ public partial class ClothesCusShopContext : DbContext
 
             entity.Property(e => e.CustomizeProductId).HasColumnName("CustomizeProduct_ID");
             entity.Property(e => e.Description).HasMaxLength(250);
-            entity.Property(e => e.FullImage).HasMaxLength(250);
+            entity.Property(e => e.Base64Image).HasColumnType("nvarchar(max)");
+            entity.Property(e => e.FullImage).HasColumnType("nvarchar(max)");
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ImagePublicId).HasMaxLength(250);
+            entity.Property(e => e.DesignMetadata).HasColumnType("nvarchar(max)");
             entity.Property(e => e.ProductId).HasColumnName("Product_ID");
             entity.Property(e => e.ShirtColor).HasMaxLength(50);
             entity.Property(e => e.UserId).HasColumnName("User_ID");

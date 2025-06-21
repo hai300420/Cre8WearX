@@ -23,18 +23,68 @@ namespace _2_Service.ThirdPartyService
             _cloudinary = new Cloudinary(account);
         }
 
+        // Handle url
+        //public async Task<string> UploadBase64ImageAsync(string base64, string fileName)
+        //{
+        //    byte[] imageBytes = Convert.FromBase64String(base64);
+        //    using var stream = new MemoryStream(imageBytes);
+
+        //    // Extract file extension (e.g., ".jpg")
+        //    var extension = Path.GetExtension(fileName);
+
+        //    // Create a unique filename using a timestamp and GUID
+        //    var uniqueFileName = $"{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid()}{extension}";
+
+        //    var uploadParams = new ImageUploadParams()
+        //    {
+        //        File = new FileDescription(uniqueFileName, stream),
+        //        PublicId = $"products/{uniqueFileName}",
+        //        Overwrite = true
+        //    };
+
+        //    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+        //    if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+        //    {
+        //        throw new Exception("Image upload failed: " + uploadResult.Error?.Message);
+        //    }
+
+        //    return uploadResult.SecureUrl.AbsoluteUri;
+        //}
+        
+        // Handle base64
         public async Task<string> UploadBase64ImageAsync(string base64, string fileName)
         {
-            byte[] imageBytes = Convert.FromBase64String(base64);
+            // Handle base64 with or without data URI scheme prefix
+            var base64Data = base64;
+
+            // If the string starts with "data:", strip the header
+            if (base64.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+            {
+                var base64Parts = base64.Split(',');
+                if (base64Parts.Length != 2)
+                {
+                    throw new ArgumentException("Invalid base64 image format.");
+                }
+                base64Data = base64Parts[1];
+            }
+
+            // Convert base64 to bytes
+            byte[] imageBytes = Convert.FromBase64String(base64Data);
             using var stream = new MemoryStream(imageBytes);
 
-            // Extract file extension (e.g., ".jpg")
+            // Extract file extension (or default to ".png")
             var extension = Path.GetExtension(fileName);
+            if (string.IsNullOrEmpty(extension))
+            {
+                extension = ".png";
+            }
 
-            // Create a unique filename using a timestamp and GUID
+            // Generate unique file name
             var uniqueFileName = $"{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid()}{extension}";
 
-            var uploadParams = new ImageUploadParams()
+            // Upload to Cloudinary
+            var uploadParams = new ImageUploadParams
             {
                 File = new FileDescription(uniqueFileName, stream),
                 PublicId = $"products/{uniqueFileName}",

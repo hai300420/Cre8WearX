@@ -98,6 +98,34 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             return Ok(result);
         }
 
+        //[HttpPost("create-with-order")]
+        //public async Task<IActionResult> CreateCustomizeProductWithOrder([FromBody] CreateCustomizeDto dto)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    try
+        //    {
+        //        // Upload image if base64 is provided
+        //        if (!string.IsNullOrEmpty(dto.Base64Image))
+        //        {
+        //            var fileName = $"custom_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid()}.jpg";
+        //            var uploadedUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.Base64Image, fileName);
+        //            dto.FullImage = uploadedUrl; // assign uploaded image url to FullImage field
+        //        }
+
+        //        // Pass updated image URL to the service
+        //        var result = await _customizeProductService.CreateCustomizeProductWithOrderAsync(dto);
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Internal server error: {ex.Message}");
+        //    }
+        //}
+
         [HttpPost("create-with-order")]
         public async Task<IActionResult> CreateCustomizeProductWithOrder([FromBody] CreateCustomizeDto dto)
         {
@@ -108,15 +136,6 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
 
             try
             {
-                // Upload image if base64 is provided
-                if (!string.IsNullOrEmpty(dto.Base64Image))
-                {
-                    var fileName = $"custom_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid()}.jpg";
-                    var uploadedUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.Base64Image, fileName);
-                    dto.FullImage = uploadedUrl; // assign uploaded image url to FullImage field
-                }
-
-                // Pass updated image URL to the service
                 var result = await _customizeProductService.CreateCustomizeProductWithOrderAsync(dto);
                 return Ok(result);
             }
@@ -125,6 +144,7 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
         [HttpPut("customize/{id}")]
         public async Task<IActionResult> UpdateCustomizeProduct(int id, [FromBody] UpdateCustomizeProductDto dto)

@@ -309,7 +309,10 @@ namespace _2_Service.Service
                 // 2. Create CustomizeProduct using the tuple mapping
                 var customizeProduct = _mapper.Map<CustomizeProduct>((dto, product));
 
-                customizeProduct.FullImage = await _cloudinaryService.UploadImageFromUrlAsync(product.Image,"product_copy.png");
+                // customizeProduct.FullImage = await _cloudinaryService.UploadImageFromUrlAsync(product.Image,"product_copy.png");
+                // Upload base64 image from frontend canvas
+                customizeProduct.FullImage = await _cloudinaryService.UploadBase64ImageAsync(dto.Base64Image, "custom_design");
+
 
                 await _customizeProductRepository.AddAsync(customizeProduct);
                 await _unitOfWork.SaveChangesAsync();
@@ -373,7 +376,12 @@ namespace _2_Service.Service
                 return new CustomizeProductWithOrderResponse
                 {
                     CustomizeProductId = customizeProduct.CustomizeProductId,
+                    ProductId = product.ProductId,
+                    ShirtColor = customizeProduct.ShirtColor,
                     OrderId = order.OrderId,
+                    TotalPrice = (decimal)order.TotalPrice,
+                    OrderStatus = orderStage.OrderStageName,
+                    OrderDate = (DateTime)order.OrderDate,
                     OrderStageId = orderStage.OrderStageId,
                     Message = "Tạo sản phẩm tùy chỉnh và đơn hàng thành công",
                 };

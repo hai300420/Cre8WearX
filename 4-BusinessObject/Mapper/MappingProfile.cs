@@ -63,7 +63,11 @@ namespace BusinessObject.Mapper
                 .ForMember(dest => dest.ShirtColor, opt => opt.MapFrom(src => src.dto.ShirtColor))
                 .ForMember(dest => dest.FullImage, opt => opt.MapFrom(src => src.product.Image))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.dto.Description))
-                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.product.Price));
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.product.Price))
+                .ForMember(dest => dest.DesignMetadata, opt => opt.MapFrom(src => src.dto.DesignMetadata))
+                .ForMember(dest => dest.Base64Image, opt => opt.MapFrom(src => src.dto.Base64Image));
+
+
 
             CreateMap<CustomizeProductResponseDTO, CustomizeProduct>()
                 .ForMember(dest => dest.CustomizeProductId, opt => opt.MapFrom(src => src.CustomizeProductId))

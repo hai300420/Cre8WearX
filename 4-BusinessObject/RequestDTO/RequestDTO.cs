@@ -34,9 +34,12 @@ namespace BusinessObject.RequestDTO
 
             public string? FullImage { get; set; }
 
-            public string? Base64Image { get; set; }
+            //public string? Base64Image { get; set; }
+            [Required(ErrorMessage = "Base64Image is required for customization")]
+            public string Base64Image { get; set; } = null!; // Sent from canvas
+            public string? DesignMetadata { get; set; } // e.g., canvas JSON
 
-            public string Description { get; set; }
+            public string Description { get; set; } // Optional human summary
 
             // Order related fields
             [Required]

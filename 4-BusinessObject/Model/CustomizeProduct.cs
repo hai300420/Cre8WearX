@@ -12,12 +12,16 @@ public partial class CustomizeProduct
     public int UserId { get; set; }
 
     public string? ShirtColor { get; set; }
+    public string? Base64Image { get; set; }
 
-    public string? FullImage { get; set; }
+    public string? FullImage { get; set; } // Cloudinary URL
 
     public string? Description { get; set; }
 
     public decimal Price { get; set; }
+
+    public string? ImagePublicId { get; set; } // required to overwrite on Cloudinary
+    public string? DesignMetadata { get; set; }
 
     public virtual ICollection<DesignElement> DesignElements { get; set; } = new List<DesignElement>();
 
