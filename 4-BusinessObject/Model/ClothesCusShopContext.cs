@@ -290,7 +290,7 @@ public partial class ClothesCusShopContext : DbContext
             entity.Property(e => e.DateOfBirth).HasColumnType("datetime");
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.FullName).HasMaxLength(50);
-            entity.Property(e => e.Password).HasMaxLength(50);
+            entity.Property(e => e.Password).HasMaxLength(200);
             entity.Property(e => e.Phone).HasMaxLength(24);
             entity.Property(e => e.RoleId).HasColumnName("Role_ID");
             entity.Property(e => e.Username).HasMaxLength(50);

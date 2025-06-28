@@ -101,3 +101,15 @@
   "deliveryDate": "2025-06-20T10:00:00"
 }
 
+{
+  "username": "string",
+  "email": "user@example.com",
+  "password": "string",
+  "fullName": "string",
+  "gender": true,
+  "dateOfBirth": "2003-06-28",
+  "address": "123 ABC Street",
+  "phone": "0976543212",
+  "avatar": "string",
+  "roleName": "Member"
+}

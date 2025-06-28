@@ -1,4 +1,5 @@
-﻿using _3_Repository.IRepository;
+﻿using _2_Service.Utils;
+using _3_Repository.IRepository;
 using _3_Repository.Repository;
 using Azure.Core;
 using BusinessObject;
@@ -81,6 +82,7 @@ namespace _2_Service.Service
             return user;
         }
 
+
         public async Task AddUser(UserRegisterDTO userDto)
         {
             var existingUser = await _userRepository.GetByUsernameAsync(userDto.Username);
@@ -108,7 +110,8 @@ namespace _2_Service.Service
             var user = new User
             {
                 Username = userDto.Username,
-                Password = userDto.Password, // Hash in repository
+                // Password = userDto.Password, 
+                Password = PasswordSecurity.HashPassword(userDto.Password),
                 FullName = userDto.FullName,
                 Email = userDto.Email,
                 Gender = userDto.Gender,
@@ -160,7 +163,8 @@ namespace _2_Service.Service
                     return new ResponseDTO(Const.FAIL_READ_CODE, "Invalid username or password.");
                 }
 
-                if (account.Password != userDto.Password)  // Nếu dùng hash, cần giải mã password
+                // if (account.Password != userDto.Password) 
+                if (!PasswordSecurity.VerifyPassword(userDto.Password, account.Password))
                 {
                     return new ResponseDTO(Const.FAIL_READ_CODE, "Invalid username or password.");
                 }
@@ -325,10 +329,10 @@ namespace _2_Service.Service
             if (existingUser == null) return new ResponseDTO(Const.FAIL_READ_CODE, "User is not existing");
             if (userDto.Password != userDto.ConfirmPassword) return new ResponseDTO(Const.FAIL_READ_CODE, "Confirm Password must be similar to Password");
 
-            existingUser.Password = userDto.Password;
+            // existingUser.Password = userDto.Password;
+            existingUser.Password = PasswordSecurity.HashPassword(userDto.Password);  // Hash password
+
             await _userRepository.UpdateAsync(existingUser);
-
-
             return new ResponseDTO(Const.SUCCESS_READ_CODE, "Password changed successfully.");
         }
 

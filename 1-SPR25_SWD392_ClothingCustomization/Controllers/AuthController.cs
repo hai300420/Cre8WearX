@@ -66,10 +66,13 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             };
 
             var tokenResponse = await httpClient.SendAsync(tokenRequest);
+            var responseText = await tokenResponse.Content.ReadAsStringAsync();
             if (!tokenResponse.IsSuccessStatusCode)
             {
-                return StatusCode(500, "Failed to exchange code for tokens.");
+                Console.WriteLine("Google Token Response:\n" + responseText);
+                return StatusCode(500, $"Failed to exchange code for tokens. {responseText}");
             }
+
 
             var payload = JsonSerializer.Deserialize<JsonElement>(await tokenResponse.Content.ReadAsStringAsync());
 
@@ -80,19 +83,22 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
 
             // Return in json form
             // return Ok(new { token = jwtToken });
-            return Redirect($"https://cre8wrearx.vercel.app/?token={jwtToken}");
+            // return Redirect($"https://cre8wrearx.vercel.app?token={jwtToken}");
+            // return Redirect($"http://localhost:5173?token={jwtToken}");
+            //var html = $@"
+            //        <html>
+            //        <body>
+            //        <script>
+            //            window.opener.postMessage({{ token: '{jwtToken}' }}, 'https://cre8wrearx.vercel.app');
+            //            window.close();
+            //        </script>
+            //        </body>
+            //        </html>";
+            //return Content(html, "text/html");
 
-            var html = $@"
-                    <html>
-                    <body>
-                    <script>
-                        window.opener.postMessage({{ token: '{jwtToken}' }}, 'https://cre8wrearx.vercel.app');
-                        window.close();
-                    </script>
-                    </body>
-                    </html>";
+            var frontendUrl = _configuration["FrontendRedirectUrl"];
+            return Redirect($"{frontendUrl}?token={jwtToken}");
 
-            return Content(html, "text/html");
         }
     }
 }
