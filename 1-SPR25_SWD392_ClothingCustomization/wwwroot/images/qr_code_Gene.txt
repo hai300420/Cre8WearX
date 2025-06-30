@@ -42,6 +42,22 @@
   "quantity": 2,
   "deliveryDate": "2025-06-20T10:00:00"
 }
+{
+  "productId": 1,
+  "userId": 5,
+  "shirtColor": "N/A",
+  "fullImage": "https://res.cloudinary.com/dasv9zzcl/image/upload/v1748792400/mat-truoc_1_xltql5.png",
+  "base64Image": "",
+  "designMetadata": "",
+  "description": "",
+  "recipientName": "Hai",
+  "deliveryAddress": "Dia Chi",
+  "shippingMethod": "Giao thuong",
+  "shippingFee": 30000,
+  "notes": "0951234567",
+  "quantity": 2,
+  "deliveryDate": "2025-06-20T10:00:00"
+}
 
 {
   // REQUIRED: ID of the selected product (from product list)

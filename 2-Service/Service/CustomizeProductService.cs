@@ -311,8 +311,25 @@ namespace _2_Service.Service
 
                 // customizeProduct.FullImage = await _cloudinaryService.UploadImageFromUrlAsync(product.Image,"product_copy.png");
                 // Upload base64 image from frontend canvas
-                customizeProduct.FullImage = await _cloudinaryService.UploadBase64ImageAsync(dto.Base64Image, "custom_design");
-
+                // customizeProduct.FullImage = await _cloudinaryService.UploadBase64ImageAsync(dto.Base64Image, "custom_design");
+                // Upload image only if base64 is provided
+                if (string.IsNullOrWhiteSpace(dto.Base64Image) && string.IsNullOrWhiteSpace(dto.FullImage))
+                {
+                    throw new Exception("Bạn phải cung cấp ảnh thiết kế (base64 hoặc link).");
+                }
+                else
+                {
+                    if (!string.IsNullOrWhiteSpace(dto.Base64Image))
+                    {
+                        customizeProduct.FullImage = await _cloudinaryService.UploadBase64ImageAsync(dto.Base64Image, "custom_design");
+                    }
+                    else if (!string.IsNullOrWhiteSpace(dto.FullImage))
+                    {
+                        customizeProduct.FullImage = dto.FullImage; // Use the provided image URL directly
+                    }
+                }
+                
+                
 
                 await _customizeProductRepository.AddAsync(customizeProduct);
                 await _unitOfWork.SaveChangesAsync();
