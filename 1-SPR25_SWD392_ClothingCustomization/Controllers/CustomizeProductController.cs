@@ -34,6 +34,12 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             return Ok(products);
         }
 
+        [HttpGet("get-my-customize-product")]
+        public async Task<ActionResult<IEnumerable<CustomizeProductResponseDTO>>> GetMyCustomizeProduct(int pageNumber = 1, int pageSize = 10)
+        {
+            var products = await _customizeProductService.GetMyCustomizeProducts(pageNumber, pageSize);
+            return Ok(products);
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<CustomizeProduct>> GetById(int id)
@@ -44,12 +50,12 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             return Ok(customizeProduct);
         }
 
-        //[HttpPost]
-        //public async Task<ActionResult> Create([FromBody] CustomizeProduct customizeProduct)
-        //{
-        //    await _customizeProductService.AddCustomizeProduct(customizeProduct);
-        //    return CreatedAtAction(nameof(GetById), new { id = customizeProduct.CustomizeProductId }, customizeProduct);
-        //}
+        [HttpPost]
+        public async Task<ActionResult> Create([FromBody] CustomizeProduct customizeProduct)
+        {
+            await _customizeProductService.AddCustomizeProduct(customizeProduct);
+            return CreatedAtAction(nameof(GetById), new { id = customizeProduct.CustomizeProductId }, customizeProduct);
+        }
         // POST api/customizeproduct
 
         //[HttpPost]
@@ -76,8 +82,27 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         {
             if (id != customizeProduct.CustomizeProductId)
                 return BadRequest();
-            await _customizeProductService.UpdateCustomizeProduct(customizeProduct);
-            return NoContent();
+            // await _customizeProductService.UpdateCustomizeProduct(customizeProduct);
+            // return NoContent();
+            try
+            {
+                await _customizeProductService.UpdateCustomizeProduct(customizeProduct);
+                return Ok(new
+                {
+                    success = true,
+                    message = "Cập nhật sản phẩm tùy chỉnh thành công.",
+                    data = customizeProduct
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Có lỗi xảy ra khi cập nhật.",
+                    error = ex.Message
+                });
+            }
         }
 
 
@@ -127,7 +152,7 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         //}
 
         [HttpPost("create-with-order")]
-        public async Task<IActionResult> CreateCustomizeProductWithOrder([FromBody] CreateCustomizeDto dto)
+        public async Task<IActionResult> CreateCustomizeProductWithOrder([FromBody] CreateCustomizeWithOrderDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -156,9 +181,16 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             // Update image if provided
             if (!string.IsNullOrEmpty(dto.Base64Image))
             {
-                var fileName = $"custom_update_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid()}.jpg";
-                var uploadedUrl = await _cloudinaryService.UploadBase64ImageAsync(dto.Base64Image, fileName);
-                customizeProduct.FullImage = uploadedUrl;
+                // var fileName = $"custom_update_{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid()}.jpg";
+                var fileName = $"custom_update.jpg";
+
+                //var uploadedUrl = await _cloudinaryService.UpdateImageAsync(dto.Base64Image, fileName, customizeProduct.ImagePublicId);
+                //customizeProduct.FullImage = uploadedUrl;
+                var uploadResult = await _cloudinaryService.UpdateImageAsync(dto.Base64Image, fileName, customizeProduct.ImagePublicId);
+
+                customizeProduct.FullImage = uploadResult.Url;
+                customizeProduct.ImagePublicId = uploadResult.PublicId;
+
             }
 
             // Update other fields

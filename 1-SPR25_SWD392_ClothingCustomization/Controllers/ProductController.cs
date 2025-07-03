@@ -86,8 +86,9 @@ namespace SPR25_SWD392_ClothingCustomization.Controllers
                     var base64Image = Convert.ToBase64String(imageBytes);
 
                     // Upload to Cloudinary
-                    var imageUrl = await _cloudinaryService.UploadBase64ImageAsync(base64Image, productDto.ImageFile.FileName);
-                    productDto.Image = imageUrl; // Set URL back in DTO
+                    var uploadResult = await _cloudinaryService.UploadBase64ImageAsync(base64Image, productDto.ImageFile.FileName);
+                    productDto.Image = uploadResult.Url; // Set URL back in DTO
+                    
                 }
 
                 var result = await _productService.CreateProductAsync(productDto);

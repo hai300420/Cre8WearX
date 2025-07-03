@@ -21,7 +21,7 @@ namespace BusinessObject.RequestDTO
         #region Khang
 
 
-        public class CreateCustomizeDto
+        public class CreateCustomizeWithOrderDto
         {
             [Required]
             public int ProductId { get; set; }
@@ -61,10 +61,40 @@ namespace BusinessObject.RequestDTO
             public DateTime? DeliveryDate { get; set; }
         }
 
+        public class CreateCustomizeDto
+        {
+            [Required]
+            public int ProductId { get; set; }
+
+            [Required]
+            public int UserId { get; set; }
+
+            [Required]
+            public string ShirtColor { get; set; }
+
+            public string? FullImage { get; set; }
+            public string? Base64Image { get; set; } = null!; // Sent from canvas
+            public string? DesignMetadata { get; set; } // e.g., canvas JSON
+
+            public string Description { get; set; } // Optional human summary
+
+            public decimal Price { get; set; }
+            public DateTime? DeliveryDate { get; set; }
+        }
+
         public class UpdateCustomizeProductDto
         {
+            public int CustomizeProductId { get; set; }
+
             public string? ShirtColor { get; set; }
+
+            public string? FullImage { get; set; }
+
             public string? Description { get; set; }
+
+            public string? ImagePublicId { get; set; }
+
+            public string? DesignMetadata { get; set; }
             public decimal? Price { get; set; }
             public string? Base64Image { get; set; }
         }

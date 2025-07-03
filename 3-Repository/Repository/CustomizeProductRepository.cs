@@ -132,5 +132,15 @@ namespace _3_Repository.Repository
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<CustomizeProduct>> GetAllAsync(int pageNumber, int pageSize, int userId)
+        {
+            return await _context.CustomizeProducts
+                .Where(p => p.UserId == userId)
+                .Skip((pageNumber - 1) * pageSize) // Bỏ qua số lượng sản phẩm không cần
+                .Take(pageSize) // Giới hạn số lượng sản phẩm trong trang
+                .ToListAsync();
+        }
+
+
     }
 }

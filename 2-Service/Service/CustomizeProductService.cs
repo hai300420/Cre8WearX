@@ -13,6 +13,9 @@ using Service;
 using static BusinessObject.RequestDTO.RequestDTO;
 using static BusinessObject.ResponseDTO.ResponseDTO;
 using _2_Service.ThirdPartyService;
+using BusinessObject.ResponseDTO;
+using BusinessObject;
+using Microsoft.AspNetCore.Http;
 
 namespace _2_Service.Service
 {
@@ -29,9 +32,12 @@ namespace _2_Service.Service
         Task<IEnumerable<CustomizeProduct>> GetCustomizeProductsByCurrentUserAsync(int userId);
         Task UpdateCustomizeProductAsync(CustomizeProduct product);
         Task DeleteCustomizeProductAsync(int id);
-        Task<CustomizeProduct> CreateCustomizeProductAsync(CustomizeProduct product);
-        Task<CustomizeProductWithOrderResponse> CreateCustomizeProductWithOrderAsync(CreateCustomizeDto dto);
+        // Task<CustomizeProduct> CreateCustomizeProductAsync(CustomizeProduct product);
+        Task<CustomizeProduct> CreateCustomizeProductAsync(CreateCustomizeDto dto);
+        Task<CustomizeProductWithOrderResponse> CreateCustomizeProductWithOrderAsync(CreateCustomizeWithOrderDto dto);
         Task<IEnumerable<CustomizeProduct>> GetAllCustomizeProducts(int pageNumber, int pageSize);
+        Task<IEnumerable<CustomizeProduct>> GetMyCustomizeProducts(int pageNumber, int pageSize);
+
 
 
     }
@@ -44,13 +50,16 @@ namespace _2_Service.Service
         private readonly IOrderStageRepository _orderStageRepo;
         private readonly IProductRepository _productRepository;
         private readonly CloudinaryService _cloudinaryService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public CustomizeProductService(
         IMapper mapper,
         IUnitOfWork unitOfWork,
         ICustomizeProductRepository customizeProductRepo,
         IOrderRepository orderRepo,
         IOrderStageRepository orderStageRepo,
-        CloudinaryService cloudinaryService)
+        CloudinaryService cloudinaryService,
+        IHttpContextAccessor httpContextAccessor)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -58,6 +67,7 @@ namespace _2_Service.Service
             _orderRepo = orderRepo;
             _orderStageRepo = orderStageRepo;
             _cloudinaryService = cloudinaryService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IEnumerable<CustomizeProduct>> GetAllCustomizeProducts()
@@ -121,11 +131,65 @@ namespace _2_Service.Service
             }
         }
 
-        public async Task<CustomizeProduct> CreateCustomizeProductAsync(CustomizeProduct product)
+        //public async Task<CustomizeProduct> CreateCustomizeProductAsync(CustomizeProduct product)
+        //{
+        //    await _customizeProductRepository.CreateAsync(product);
+        //    return product;
+        //}
+
+        public async Task<CustomizeProduct> CreateCustomizeProductAsync(CreateCustomizeDto dto)
         {
-            await _customizeProductRepository.CreateAsync(product);
-            return product;
+            // Start transaction
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                // 1. Get product (mainly for validation and default image/price)
+                var product = await _unitOfWork.ProductRepository.GetByIdAsync(dto.ProductId);
+                if (product == null)
+                {
+                    throw new Exception($"Không tìm thấy sản phẩm với ID {dto.ProductId}");
+                }
+
+                // 2. Map CustomizeProduct
+                var customizeProduct = _mapper.Map<CustomizeProduct>((dto, product));
+
+                // 3. Handle image
+                if (string.IsNullOrWhiteSpace(dto.Base64Image) && string.IsNullOrWhiteSpace(dto.FullImage))
+                {
+                    throw new Exception("Bạn phải cung cấp ảnh thiết kế (base64 hoặc link).");
+                }
+
+                if (!string.IsNullOrWhiteSpace(dto.Base64Image))
+                {
+                    // customizeProduct.FullImage = await _cloudinaryService.UploadBase64ImageAsync(dto.Base64Image, "custom_design");
+                    var imageResult = await _cloudinaryService.UploadBase64ImageAsync(dto.Base64Image, "custom_design");
+                    customizeProduct.FullImage = imageResult.Url;
+                    customizeProduct.ImagePublicId = imageResult.PublicId;
+
+                }
+                else
+                {
+                    customizeProduct.FullImage = dto.FullImage;
+                }
+
+                // 4. Save CustomizeProduct
+                await _customizeProductRepository.AddAsync(customizeProduct);
+                await _unitOfWork.SaveChangesAsync();
+
+                // Commit transaction
+                await _unitOfWork.CommitAsync();
+
+                return customizeProduct;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new Exception($"Lỗi khi tạo sản phẩm tùy chỉnh: {ex.Message}", ex);
+            }
         }
+
+
         //public async Task<CustomizeProductWithOrderResponse> CreateCustomizeProductWithOrderAsync(CreateCustomizeDto dto)
         //{
         //    // Start transaction
@@ -286,7 +350,25 @@ namespace _2_Service.Service
             return await _customizeProductRepository.GetAllAsync(pageNumber, pageSize);
         }
 
-        public async Task<CustomizeProductWithOrderResponse> CreateCustomizeProductWithOrderAsync(CreateCustomizeDto dto)
+        public async Task<IEnumerable<CustomizeProduct>> GetMyCustomizeProducts(int pageNumber, int pageSize)
+        {
+            var userIdClaim = _httpContextAccessor.HttpContext?.User.Claims
+                                .FirstOrDefault(c => c.Type == "User_Id");
+
+            if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value))
+            {
+                return Enumerable.Empty<CustomizeProduct>();
+            }
+
+            if (!int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Enumerable.Empty<CustomizeProduct>();
+            }
+
+            return await _customizeProductRepository.GetAllAsync(pageNumber, pageSize, userId);
+        }
+
+        public async Task<CustomizeProductWithOrderResponse> CreateCustomizeProductWithOrderAsync(CreateCustomizeWithOrderDto dto)
         {
             // Start transaction
             await _unitOfWork.BeginTransactionAsync();
@@ -321,7 +403,11 @@ namespace _2_Service.Service
                 {
                     if (!string.IsNullOrWhiteSpace(dto.Base64Image))
                     {
-                        customizeProduct.FullImage = await _cloudinaryService.UploadBase64ImageAsync(dto.Base64Image, "custom_design");
+                        // customizeProduct.FullImage = await _cloudinaryService.UploadBase64ImageAsync(dto.Base64Image, "custom_design");
+                        var imageResult = await _cloudinaryService.UploadBase64ImageAsync(dto.Base64Image, "custom_design");
+                        customizeProduct.FullImage = imageResult.Url;
+                        customizeProduct.ImagePublicId = imageResult.PublicId;
+
                     }
                     else if (!string.IsNullOrWhiteSpace(dto.FullImage))
                     {

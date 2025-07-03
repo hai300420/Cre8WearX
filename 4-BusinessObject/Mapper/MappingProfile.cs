@@ -57,7 +57,7 @@ namespace BusinessObject.Mapper
 
             // Add this to your MappingProfile class
             // More specific mapping for when we have product data
-            CreateMap<(CreateCustomizeDto dto, Product product), CustomizeProduct>()
+            CreateMap<(CreateCustomizeWithOrderDto dto, Product product), CustomizeProduct>()
                 .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.dto.ProductId))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.dto.UserId))
                 .ForMember(dest => dest.ShirtColor, opt => opt.MapFrom(src => src.dto.ShirtColor))

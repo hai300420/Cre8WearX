@@ -40,8 +40,11 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         private readonly IVnPayService _vnPayService;
         private readonly MoMoConfig _momoConfig;
         private readonly IMoMoService _momoService;
+        private readonly ILogger<PaymentController> _logger;
 
-        public PaymentController(IVnpay vnPayservice, IConfiguration configuration, IOrderStageService orderStageService, IOrderService orderService, IPaymentService paymentService, IOptions<MoMoConfig> config, IMoMoService momoService)
+
+        public PaymentController(IVnpay vnPayservice, IConfiguration configuration, IOrderStageService orderStageService, IOrderService orderService,
+            IPaymentService paymentService, IOptions<MoMoConfig> config, IMoMoService momoService, ILogger<PaymentController> logger)
         {
             _vnpay = vnPayservice;
             _configuration = configuration;
@@ -54,8 +57,13 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
 
             _vnpay.Initialize(_configuration["Vnpay:TmnCode"], _configuration["Vnpay:HashSecret"], _configuration["Vnpay:BaseUrl"], _configuration["Vnpay:CallbackUrl"]);
             _momoService = momoService;
+
+            _logger = logger;
+
         }
 
+
+        #region Old payment
 
         /// <summary>
         /// Thực hiện hành động sau khi thanh toán. URL này cần được khai báo với VNPAY để API này hoạt đồng (ví dụ: http://localhost:1234/api/Vnpay/IpnAction)
@@ -124,7 +132,7 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             }
         }
 
-        
+
 
         [HttpGet("VNPay/Callback")]
         public async Task<IActionResult> Callback()
@@ -307,13 +315,23 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             string fileName = $"qr_code_{DateTime.UtcNow.Ticks}.png";
 
             // Upload to Cloudinary
-            string imageUrl = await cloudinaryService.UploadBase64ImageAsync(base64Image, fileName);
+            // string imageUrl = await cloudinaryService.UploadBase64ImageAsync(base64Image, fileName);
+
+            //return Ok(new
+            //{
+            //    // base64 = base64Image,
+            //    fullData = apiResponse,
+            //    imageUrl = imageUrl
+            //});
+
+            var uploadResult = await cloudinaryService.UploadBase64ImageAsync(base64Image, fileName);
 
             return Ok(new
             {
                 // base64 = base64Image,
                 fullData = apiResponse,
-                imageUrl = imageUrl
+                imageUrl = uploadResult.Url,
+
             });
         }
 
@@ -821,7 +839,28 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
 
             return Ok("Simulated MoMo IPN callback success");
         }
+        #endregion
 
+        [HttpPost("SePay/webhook")]
+        public async Task<IActionResult> ReceivePayment([FromBody] SepayWebhookRequest request)
+        {
+            if (!Request.Headers.TryGetValue("Authorization", out var apiKeyHeader))
+            {
+                return Unauthorized();
+            }
+
+            var expectedKey = "Apikey 78f1b3a8-4e21-4c9f-8a8a-2f29fcb45601";
+            if (apiKeyHeader != expectedKey)
+            {
+                return Unauthorized();
+            }
+
+            _logger.LogInformation("Webhook authorized. Processing...");
+
+            // Save transaction or trigger logic
+            return Ok(new { success = true });
+
+        }
 
     }
 }
