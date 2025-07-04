@@ -94,6 +94,16 @@ namespace BusinessObject.Mapper
             // Map từ OrderStageCreateDTO sang Entity
             CreateMap<OrderStageCreateDTO, OrderStage>().ReverseMap();
 
+            CreateMap<(CreateCustomizeDto dto, Product product), CustomizeProduct>()
+                 .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.product.ProductId))
+                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.dto.UserId))
+                 .ForMember(dest => dest.ShirtColor, opt => opt.MapFrom(src => src.dto.ShirtColor))
+                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.dto.Description))
+                 .ForMember(dest => dest.DesignMetadata, opt => opt.MapFrom(src => src.dto.DesignMetadata))
+                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.dto.Price));
+
+
+
         }
     }
 }

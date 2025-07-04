@@ -50,16 +50,16 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             return Ok(customizeProduct);
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Create([FromBody] CustomizeProduct customizeProduct)
-        {
-            await _customizeProductService.AddCustomizeProduct(customizeProduct);
-            return CreatedAtAction(nameof(GetById), new { id = customizeProduct.CustomizeProductId }, customizeProduct);
-        }
+        //[HttpPost]
+        //public async Task<ActionResult> Create([FromBody] CustomizeProduct customizeProduct)
+        //{
+        //    await _customizeProductService.AddCustomizeProduct(customizeProduct);
+        //    return CreatedAtAction(nameof(GetById), new { id = customizeProduct.CustomizeProductId }, customizeProduct);
+        //}
         // POST api/customizeproduct
 
         //[HttpPost]
-        //public async Task<ActionResult> Create([FromBody] CreateCustomizeProductDTO createCustomizeProductDTO)
+        //public async Task<ActionResult> Create([FromBody] CreateCustomizeDto createCustomizeProductDTO)
         //{
         //    // Kiểm tra dữ liệu hợp lệ
         //    if (createCustomizeProductDTO == null)
@@ -76,6 +76,33 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         //    // Trả về kết quả khi tạo thành công
         //    return CreatedAtAction(nameof(GetById), new { id = customizeProduct.CustomizeProductId }, customizeProduct);
         //}
+
+        [HttpPost]
+        public async Task<ActionResult> Create([FromBody] CreateCustomizeDto createCustomizeProductDTO)
+        {
+            if (createCustomizeProductDTO == null)
+            {
+                return BadRequest("Invalid data.");
+            }
+
+            try
+            {
+                // Call the new service method that handles everything including mapping and image uploading
+                var createdCustomizeProduct = await _customizeProductService.CreateCustomizeProductAsync(createCustomizeProductDTO);
+
+                return CreatedAtAction(nameof(GetById), new { id = createdCustomizeProduct.ProductId }, createdCustomizeProduct);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Có lỗi xảy ra khi tạo sản phẩm tùy chỉnh.",
+                    error = ex.Message
+                });
+            }
+        }
+
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] CustomizeProduct customizeProduct)

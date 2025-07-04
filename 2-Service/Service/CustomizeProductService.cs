@@ -170,7 +170,10 @@ namespace _2_Service.Service
                 }
                 else
                 {
-                    customizeProduct.FullImage = dto.FullImage;
+                    // customizeProduct.FullImage = dto.FullImage;
+                    var imageResult = await _cloudinaryService.UploadImageFromUrlAsync(dto.FullImage, "custom_design");
+                    customizeProduct.FullImage = imageResult.Url;
+                    customizeProduct.ImagePublicId = imageResult.PublicId;
                 }
 
                 // 4. Save CustomizeProduct
