@@ -56,6 +56,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
         options.JsonSerializerOptions.WriteIndented = true;
     });
@@ -76,40 +77,105 @@ builder.Services.AddCors(options =>
 });
 
 // Cấu hình Swagger
+//builder.Services.AddSwaggerGen(c =>
+//{
+//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "SWD392", Version = "v1" });
+
+//    var securityScheme = new OpenApiSecurityScheme
+//    {
+//        Name = "Authorization",
+//        Description = "Please enter a valid token",
+//        Type = SecuritySchemeType.Http,
+//        Scheme = "bearer",
+//        BearerFormat = "JWT",
+//        In = ParameterLocation.Header,
+//        Reference = new OpenApiReference
+//        {
+//            Type = ReferenceType.SecurityScheme,
+//            Id = "Bearer"
+//        }
+//    };
+//    c.AddSecurityDefinition("Bearer", securityScheme);
+//    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+//        {
+//            {
+//                new OpenApiSecurityScheme
+//                {
+//                    Reference = new OpenApiReference
+//                    {
+//                        Type=ReferenceType.SecurityScheme,
+//                        Id="Bearer"
+//                    }
+//                },
+//                new string[]{}
+//            }
+//        });
+//});
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "SWD392", Version = "v1" });
 
-    var securityScheme = new OpenApiSecurityScheme
+    // 🔐 1. JWT Bearer Auth
+    var jwtScheme = new OpenApiSecurityScheme
     {
         Name = "Authorization",
-        Description = "Please enter a valid token",
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+        In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
         Scheme = "bearer",
         BearerFormat = "JWT",
-        In = ParameterLocation.Header,
         Reference = new OpenApiReference
         {
             Type = ReferenceType.SecurityScheme,
             Id = "Bearer"
         }
     };
-    c.AddSecurityDefinition("Bearer", securityScheme);
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    c.AddSecurityDefinition("Bearer", jwtScheme);
+
+    // 🔐 2. Custom API Key Auth (for SePay webhook)
+    var apiKeyScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Description = "SePay webhook authorization header. Example: \"Apikey YOUR_KEY_HERE\"",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Apikey",
+        Reference = new OpenApiReference
         {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Apikey"
+        }
+    };
+    c.AddSecurityDefinition("Apikey", apiKeyScheme);
+
+    // 🔐 Apply both
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
             {
-                new OpenApiSecurityScheme
+                Reference = new OpenApiReference
                 {
-                    Reference = new OpenApiReference
-                    {
-                        Type=ReferenceType.SecurityScheme,
-                        Id="Bearer"
-                    }
-                },
-                new string[]{}
-            }
-        });
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        },
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Apikey"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
+
 
 builder.Services.AddHttpContextAccessor();
 

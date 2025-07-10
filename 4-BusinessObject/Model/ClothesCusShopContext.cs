@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using _4_BusinessObject.RequestDTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using static BusinessObject.RequestDTO.RequestDTO;
@@ -43,6 +44,9 @@ public partial class ClothesCusShopContext : DbContext
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    public DbSet<SePayTransaction> SePayTransactions { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
