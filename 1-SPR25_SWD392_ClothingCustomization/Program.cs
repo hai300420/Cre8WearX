@@ -226,6 +226,8 @@ builder.Services.Configure<MoMoConfig>(builder.Configuration.GetSection("MoMo"))
 builder.Services.AddScoped<IMoMoService, MoMoService>();
 // Add Cloudinary
 builder.Services.AddSingleton<CloudinaryService>();
+// Add SePay Generate QR
+builder.Services.AddSingleton<SePayQRService>();
 
 
 // Đăng ký AutoMapper

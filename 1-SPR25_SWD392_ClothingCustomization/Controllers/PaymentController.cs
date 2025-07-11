@@ -46,10 +46,12 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         private readonly MoMoConfig _momoConfig;
         private readonly IMoMoService _momoService;
         private readonly ILogger<PaymentController> _logger;
+        private readonly SePayQRService _qrService;
+
 
 
         public PaymentController(IVnpay vnPayservice, IConfiguration configuration, IOrderStageService orderStageService, IOrderService orderService,
-            IPaymentService paymentService, IOptions<MoMoConfig> config, IMoMoService momoService, ILogger<PaymentController> logger)
+            IPaymentService paymentService, IOptions<MoMoConfig> config, IMoMoService momoService, ILogger<PaymentController> logger, SePayQRService qrService)
         {
             _vnpay = vnPayservice;
             _configuration = configuration;
@@ -61,9 +63,10 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh");
 
             _vnpay.Initialize(_configuration["Vnpay:TmnCode"], _configuration["Vnpay:HashSecret"], _configuration["Vnpay:BaseUrl"], _configuration["Vnpay:CallbackUrl"]);
-            _momoService = momoService;
 
             _logger = logger;
+            _qrService = qrService;
+
 
         }
 
@@ -846,51 +849,84 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         }
         #endregion
 
+
+
         //[HttpPost("SePay/webhook")]
         //public async Task<IActionResult> ReceivePayment([FromBody] SepayWebhookRequest request)
         //{
         //    if (!Request.Headers.TryGetValue("Authorization", out var apiKeyHeader))
-        //    {
         //        return Unauthorized();
-        //    }
 
         //    var expectedKey = "Apikey 78f1b3a8-4e21-4c9f-8a8a-2f29fcb45601";
         //    if (apiKeyHeader != expectedKey)
-        //    {
         //        return Unauthorized();
-        //    }
 
         //    _logger.LogInformation("Webhook authorized. Processing...");
         //    _logger.LogInformation("Webhook received: " + JsonConvert.SerializeObject(request));
 
-        //    // Save to DB
+        //    // Declare fallback tracking flags
+        //    bool usedFallbackOrderId = false;
+        //    bool usedFallbackAmount = false;
 
         //    try
         //    {
-        //        // Try to extract OrderId from the transfer content/description (e.g., "Order#12345")
-        //        var orderIdMatch = Regex.Match(request.Content ?? request.Description ?? "", @"\d+");
+        //        if (request == null)
+        //        {
+        //            _logger.LogError("Request binding failed: `request` is null.");
+        //            return BadRequest(new
+        //            {
+        //                success = false,
+        //                message = "Webhook request body is null. Check content-type and model binding.",
+        //                expectedModel = typeof(SepayWebhookRequest).FullName
+        //            });
+        //        }
+
+        //        // Try to extract OrderId from Content or Description
+        //        var contentToParse = request.Content ?? request.Description ?? "";
+        //        var orderIdMatch = Regex.Match(contentToParse, @"\d+");
+
+        //        int orderId;
         //        if (!orderIdMatch.Success)
-        //            return BadRequest("Order ID not found in transfer content.");
+        //        {
+        //            usedFallbackOrderId = true;
+        //            // Fallback: Use a known test Order ID (replace with a real test ID from your DB)
+        //            _logger.LogWarning("Could not extract Order ID from request. Using fallback test ID: 2");
+        //            orderId = 2; // Change this to a safe/test order in your DB
+        //        }
+        //        else
+        //        {
+        //            orderId = int.Parse(orderIdMatch.Value);
+        //        }
 
-        //        int orderId = int.Parse(orderIdMatch.Value);
-
-        //        // Optional: Validate that order exists
+        //        // Validate that order exists
         //        var order = await _orderService.GetOrderByIdAsync(orderId);
         //        if (order == null)
-        //            return BadRequest($"OrderId {orderId} does not exist.");
+        //        {
+        //            usedFallbackOrderId = true;
+        //            _logger.LogWarning($"OrderId {orderId} does not exist. Using fallback OrderId = 2");
+        //            orderId = 2; // fallback again
+        //        }
+
+        //        decimal amount = (decimal)request.TransferAmount;
+        //        if (request.TransferAmount <= 0)
+        //        {
+        //            usedFallbackAmount = true;
+        //            amount = 20000;
+        //        }
 
         //        var payment = new Payment
         //        {
         //            OrderId = orderId,
-        //            TotalAmount = (decimal)request.TransferAmount,
-        //            DepositPaid = (decimal)request.TransferAmount,
-        //            DepositAmount = (decimal)request.TransferAmount,
+        //            TotalAmount = amount,
+        //            DepositPaid = amount,
+        //            DepositAmount = amount,
         //            PaymentDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"))
         //        };
 
         //        await _paymentService.SavePaymentAsync(payment);
+        //        _logger.LogInformation($"Saved payment for order {orderId}");
 
-        //        // Update order stage if needed (optional)
+        //        // Update order stage
         //        var stageResponse = await _orderStageService.GetOrderStageByOrderIdAsync(orderId);
         //        if (stageResponse != null && stageResponse.Status == 200 && stageResponse.Data is OrderStageResponseDTO orderStageDto)
         //        {
@@ -902,6 +938,7 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         //                UpdatedDate = DateTime.UtcNow
         //            };
         //            await _orderStageService.UpdateOrderStageAsync(updatedStage);
+        //            _logger.LogInformation($"Updated order stage to 'Purchased' for order {orderId}");
         //        }
         //        else
         //        {
@@ -912,14 +949,30 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         //                UpdatedDate = DateTime.UtcNow
         //            };
         //            await _orderStageService.CreateOrderStageAsync(newStage);
+        //            _logger.LogInformation($"Created new order stage for order {orderId}");
         //        }
 
         //        return Ok(new { success = true, received = request });
         //    }
         //    catch (Exception ex)
         //    {
-        //        _logger.LogError("Error saving SePay payment: " + ex.Message);
-        //        return StatusCode(500, new { success = false, message = "Error saving payment", error = ex.Message });
+        //        //_logger.LogError("Error saving SePay payment: " + ex.Message);
+        //        //return StatusCode(500, new { success = false, message = "Error saving payment", error = ex.Message });
+        //        _logger.LogError("Error saving SePay payment: " + ex.ToString());
+        //        _logger.LogWarning("Failed request body: " + JsonConvert.SerializeObject(request));
+
+        //        return StatusCode(500, new
+        //        {
+        //            success = false,
+        //            message = "Error saving payment",
+        //            error = ex.Message,
+        //            stackTrace = ex.StackTrace,
+        //            fallbackUsed = new
+        //            {
+        //                orderIdFallback = usedFallbackOrderId,
+        //                amountFallback = usedFallbackAmount
+        //            }
+        //        });
         //    }
         //}
 
@@ -929,16 +982,12 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             if (!Request.Headers.TryGetValue("Authorization", out var apiKeyHeader))
                 return Unauthorized();
 
-            var expectedKey = "Apikey 78f1b3a8-4e21-4c9f-8a8a-2f29fcb45601";
+            const string expectedKey = "Apikey 78f1b3a8-4e21-4c9f-8a8a-2f29fcb45601";
             if (apiKeyHeader != expectedKey)
                 return Unauthorized();
 
             _logger.LogInformation("Webhook authorized. Processing...");
             _logger.LogInformation("Webhook received: " + JsonConvert.SerializeObject(request));
-
-            // Declare fallback tracking flags
-            bool usedFallbackOrderId = false;
-            bool usedFallbackAmount = false;
 
             try
             {
@@ -947,58 +996,65 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                     _logger.LogError("Request binding failed: `request` is null.");
                     return BadRequest(new
                     {
-                        success = false,
-                        message = "Webhook request body is null. Check content-type and model binding.",
-                        expectedModel = typeof(SepayWebhookRequest).FullName
+                        status = false,
+                        message = "Request body is null. Please check Content-Type and model format."
                     });
                 }
 
-                // Try to extract OrderId from Content or Description
-                var contentToParse = request.Content ?? request.Description ?? "";
-                var orderIdMatch = Regex.Match(contentToParse, @"\d+");
+                // Extract OrderId from Content or Description
+                var contentToParse = request.Content ?? request.Description;
+                if (string.IsNullOrWhiteSpace(contentToParse))
+                {
+                    return BadRequest(new { status = false, message = "No content or description found to extract OrderId." });
+                }
 
-                int orderId;
+                var orderIdMatch = Regex.Match(contentToParse, @"\d+");
                 if (!orderIdMatch.Success)
                 {
-                    usedFallbackOrderId = true;
-                    // Fallback: Use a known test Order ID (replace with a real test ID from your DB)
-                    _logger.LogWarning("Could not extract Order ID from request. Using fallback test ID: 2");
-                    orderId = 2; // Change this to a safe/test order in your DB
-                }
-                else
-                {
-                    orderId = int.Parse(orderIdMatch.Value);
+                    return BadRequest(new { status = false, message = "Could not extract OrderId from the content or description." });
                 }
 
-                // Validate that order exists
+                int orderId = int.Parse(orderIdMatch.Value);
+
+                // Check if order exists
                 var order = await _orderService.GetOrderByIdAsync(orderId);
                 if (order == null)
                 {
-                    usedFallbackOrderId = true;
-                    _logger.LogWarning($"OrderId {orderId} does not exist. Using fallback OrderId = 2");
-                    orderId = 2; // fallback again
+                    return BadRequest(new { success = false, message = $"OrderId {orderId} does not exist." });
                 }
 
-                decimal amount = (decimal)request.TransferAmount;
                 if (request.TransferAmount <= 0)
                 {
-                    usedFallbackAmount = true;
-                    amount = 20000;
+                    return BadRequest(new { success = false, message = "TransferAmount must be greater than 0." });
                 }
+
+                decimal totalAmountRequired = (order.Price ?? 0) * (order.Quantity ?? 0) + Convert.ToDecimal(order.ShippingFee ?? 0);
+                // Validate transfer amount to prevent people sent less money. This method doesn't work since money is still sent.
+                //if (request.TransferAmount < total)
+                //{
+                //    return BadRequest(new
+                //    {
+                //        success = false,
+                //        message = $"Transferred amount ({request.TransferAmount}) is less than the required amount ({total}). Payment rejected."
+                //    });
+                //}
 
                 var payment = new Payment
                 {
                     OrderId = orderId,
-                    TotalAmount = amount,
-                    DepositPaid = amount,
-                    DepositAmount = amount,
+                    TotalAmount = request.TransferAmount,
+                    DepositPaid = request.TransferAmount,
+                    DepositAmount = request.TransferAmount,
                     PaymentDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"))
                 };
 
                 await _paymentService.SavePaymentAsync(payment);
                 _logger.LogInformation($"Saved payment for order {orderId}");
 
-                // Update order stage
+                // Determine order stage
+                string orderStage = request.TransferAmount < totalAmountRequired ? "Partially Paid" : "Purchased";
+
+                // Update or create order stage
                 var stageResponse = await _orderStageService.GetOrderStageByOrderIdAsync(orderId);
                 if (stageResponse != null && stageResponse.Status == 200 && stageResponse.Data is OrderStageResponseDTO orderStageDto)
                 {
@@ -1006,49 +1062,65 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                     {
                         OrderStageId = orderStageDto.OrderStageId,
                         OrderId = orderId,
-                        OrderStageName = "Purchased",
+                        OrderStageName = orderStage,
                         UpdatedDate = DateTime.UtcNow
                     };
                     await _orderStageService.UpdateOrderStageAsync(updatedStage);
-                    _logger.LogInformation($"Updated order stage to 'Purchased' for order {orderId}");
+                    _logger.LogInformation($"Updated order stage to '{orderStage}' for order {orderId}");
                 }
                 else
                 {
                     var newStage = new OrderStageCreateDTO
                     {
                         OrderId = orderId,
-                        OrderStageName = "Purchased",
+                        OrderStageName = orderStage,
                         UpdatedDate = DateTime.UtcNow
                     };
                     await _orderStageService.CreateOrderStageAsync(newStage);
                     _logger.LogInformation($"Created new order stage for order {orderId}");
                 }
 
-                return Ok(new { success = true, received = request });
+                return Ok(new { status = true, message = "Payment saved", orderId, amount = request.TransferAmount });
             }
             catch (Exception ex)
             {
-                //_logger.LogError("Error saving SePay payment: " + ex.Message);
-                //return StatusCode(500, new { success = false, message = "Error saving payment", error = ex.Message });
                 _logger.LogError("Error saving SePay payment: " + ex.ToString());
-                _logger.LogWarning("Failed request body: " + JsonConvert.SerializeObject(request));
 
                 return StatusCode(500, new
                 {
                     success = false,
-                    message = "Error saving payment",
+                    message = "Internal server error during webhook processing",
                     error = ex.Message,
-                    stackTrace = ex.StackTrace,
-                    fallbackUsed = new
-                    {
-                        orderIdFallback = usedFallbackOrderId,
-                        amountFallback = usedFallbackAmount
-                    }
+                    stackTrace = ex.StackTrace
                 });
             }
         }
 
 
+        [HttpGet("VietQR/generate-qr")]
+        public IActionResult GenerateQr(int orderId, decimal amount)
+        {
+            if (orderId <= 0 || amount <= 0)
+            {
+                return BadRequest("OrderId and Amount must be valid.");
+            }
+
+            #region secret
+            var bin = "970423"; // TPBank BIN
+            var account = "95300403741";
+            var content = $"Thanh toan don hang {orderId}";
+            #endregion
+
+            var qrUrl = $"https://img.vietqr.io/image/{bin}-{account}-compact.png?amount={amount}&addInfo={Uri.EscapeDataString(content)}";
+
+            return Ok(new
+            {
+                qrImageUrl = qrUrl,
+                content = content,
+                account = account,
+                amount = amount
+            });
+        }
 
     }
 }
