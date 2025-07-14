@@ -1055,32 +1055,40 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                 string orderStage = request.TransferAmount < totalAmountRequired ? "Partially Paid" : "Purchased";
 
                 // Update or create order stage
-                var stageResponse = await _orderStageService.GetOrderStageByOrderIdAsync(orderId);
-                if (stageResponse != null && stageResponse.Status == 200 && stageResponse.Data is OrderStageResponseDTO orderStageDto)
+                //var stageResponse = await _orderStageService.GetOrderStageByOrderIdAsync(orderId);
+                //if (stageResponse != null && stageResponse.Status == 200 && stageResponse.Data is OrderStageResponseDTO orderStageDto)
+                //{
+                //    var updatedStage = new OrderStage
+                //    {
+                //        OrderStageId = orderStageDto.OrderStageId,
+                //        OrderId = orderId,
+                //        OrderStageName = orderStage,
+                //        UpdatedDate = DateTime.UtcNow
+                //    };
+                //    await _orderStageService.UpdateOrderStageAsync(updatedStage);
+                //    _logger.LogInformation($"Updated order stage to '{orderStage}' for order {orderId}");
+                //}
+                //else
+                //{
+                //    var newStage = new OrderStageCreateDTO
+                //    {
+                //        OrderId = orderId,
+                //        OrderStageName = orderStage,
+                //        UpdatedDate = DateTime.UtcNow
+                //    };
+                //    await _orderStageService.CreateOrderStageAsync(newStage);
+                //    _logger.LogInformation($"Created new order stage for order {orderId}");
+                //}
+                var newStage = new OrderStageCreateDTO
                 {
-                    var updatedStage = new OrderStage
-                    {
-                        OrderStageId = orderStageDto.OrderStageId,
-                        OrderId = orderId,
-                        OrderStageName = orderStage,
-                        UpdatedDate = DateTime.UtcNow
-                    };
-                    await _orderStageService.UpdateOrderStageAsync(updatedStage);
-                    _logger.LogInformation($"Updated order stage to '{orderStage}' for order {orderId}");
-                }
-                else
-                {
-                    var newStage = new OrderStageCreateDTO
-                    {
-                        OrderId = orderId,
-                        OrderStageName = orderStage,
-                        UpdatedDate = DateTime.UtcNow
-                    };
-                    await _orderStageService.CreateOrderStageAsync(newStage);
-                    _logger.LogInformation($"Created new order stage for order {orderId}");
-                }
+                    OrderId = orderId,
+                    OrderStageName = orderStage,
+                    UpdatedDate = DateTime.UtcNow
+                };
+                await _orderStageService.CreateOrderStageAsync(newStage);
 
-                return Ok(new { status = true, message = "Payment saved", orderId, amount = request.TransferAmount });
+                return Ok(new { status = true, message = "Payment saved", orderId, amount = request.TransferAmount, newStage });
+                // return Redirect("https://cre8wrearx.vercel.app/payment-success");
             }
             catch (Exception ex)
             {
@@ -1088,7 +1096,7 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
 
                 return StatusCode(500, new
                 {
-                    success = false,
+                    status = false,
                     message = "Internal server error during webhook processing",
                     error = ex.Message,
                     stackTrace = ex.StackTrace
@@ -1121,6 +1129,85 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                 amount = amount
             });
         }
+
+        //[HttpGet("SePay/payment-status")]
+        //public async Task<IActionResult> GetPaymentStatus(int orderId)
+        //{
+        //    if (orderId <= 0)
+        //    {
+        //        return BadRequest(new { status = "InvalidOrderId" });
+        //        // return Redirect("https://cre8wrearx.vercel.app/payment-success");
+        //    }        
+
+        //    try
+        //    {
+        //        var order = await _orderService.GetOrderByIdAsync(orderId);
+        //        if (order == null)
+        //        {
+        //            return NotFound(new { status = "OrderNotFound" });
+        //        }
+
+
+        //        var latestStage = await _orderStageService.GetLatestStageByOrderIdAsync(orderId);
+        //        if (latestStage == null)
+        //        {
+        //            return Ok(new { status = "Pending" });
+        //        }
+
+        //        return Ok(new
+        //        {
+        //            status = latestStage.OrderStageName, // Example: "Purchased", "Partially Paid"
+        //            updatedAt = latestStage.UpdatedDate
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError("Error checking payment status: " + ex);
+        //        return StatusCode(500, new { status = "Error", message = ex.Message });
+        //    }
+        //}
+
+        [HttpGet("SePay/payment-status")]
+        public async Task<IActionResult> GetPaymentStatus(int orderId)
+        {
+            if (orderId <= 0)
+            {
+                return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+            }
+
+            try
+            {
+                var order = await _orderService.GetOrderByIdAsync(orderId);
+                if (order == null)
+                {
+                    return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+                }
+
+                var latestStage = await _orderStageService.GetLatestStageByOrderIdAsync(orderId);
+                if (latestStage == null)
+                {
+                    // Still pending
+                    return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+                }
+
+                var stageName = latestStage.OrderStageName?.ToLower();
+
+                if (stageName == "purchased" || stageName == "paid" || stageName == "completed")
+                {
+                    return Redirect("https://cre8wrearx.vercel.app/payment-success");
+                }
+                else
+                {
+                    return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error checking payment status: " + ex);
+                return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+            }
+        }
+
 
     }
 }

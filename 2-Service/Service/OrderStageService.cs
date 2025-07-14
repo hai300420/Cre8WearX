@@ -24,6 +24,7 @@ namespace Service.Service
         // new method
         Task<ResponseDTO> GetOrderStageByOrderIdAsync(int orderId);
         Task<ResponseDTO> UpdateOrderStageAsync(OrderStage existingOrderStage);
+        Task<OrderStage?> GetLatestStageByOrderIdAsync(int orderId);
 
     }
     public class OrderStageService : IOrderStageService
@@ -132,6 +133,13 @@ namespace Service.Service
             return new ResponseDTO(200, "Success", orderStage);
         }
 
+        public async Task<OrderStage?> GetLatestStageByOrderIdAsync(int orderId)
+        {
+            return await _unitOfWork.OrderStageRepository.GetAll()
+                .Where(s => s.OrderId == orderId)
+                .OrderByDescending(s => s.OrderStageId)
+                .FirstOrDefaultAsync();
+        }
 
 
     }

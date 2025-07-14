@@ -162,3 +162,18 @@ API: POST: api/customizeproducts
 "content": "Payment for order 123",
 "description": "BankAPINotify for order 123"
 
+Payment in QR:
+POST: https://thisaonao-001-site1.rtempurl.com/api/Orders
+{
+  "CustomizeProductId": 1,
+  "OrderDate": "2025-07-13T14:45:41.239Z",
+  "DeliveryDate": "2025-07-13T14:45:41.239Z",
+  "RecipientName": "string",
+  "DeliveryAddress": "string",
+  "ShippingMethod": "string",
+  "ShippingFee": 0,
+  "Notes": "string",
+  "Price": 2000,
+  "Quantity": 1,
+  "TotalPrice": 2000
+}
