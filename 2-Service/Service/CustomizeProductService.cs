@@ -423,8 +423,18 @@ namespace _2_Service.Service
                 await _customizeProductRepository.AddAsync(customizeProduct);
                 await _unitOfWork.SaveChangesAsync();
 
-                // Calculate price with quantity discounts
-                decimal basePrice = (decimal)(product.Price * dto.Quantity);
+                decimal price;
+                if(dto.Price == 0)
+                {
+                    price = (decimal)product.Price;
+                }
+                else
+                {
+                    price = dto.Price;
+                }
+
+                decimal tempTotalPrice = 0;
+                decimal basePrice = (decimal)(price * dto.Quantity);
                 decimal totalPrice = dto.Quantity switch
                 {
                     >= 10 and <= 20 => basePrice,
@@ -440,6 +450,10 @@ namespace _2_Service.Service
 
                 // Add shipping fee
                 totalPrice += dto.ShippingFee;
+                tempTotalPrice = totalPrice;
+
+
+
 
                 // 3. Create Order
                 var order = new Order
@@ -452,9 +466,11 @@ namespace _2_Service.Service
                     ShippingMethod = dto.ShippingMethod,
                     ShippingFee = (double)dto.ShippingFee,
                     Notes = dto.Notes,
-                    Price = product.Price,
+                    Price = price,
+                    // Price = product.Price,
                     Quantity = dto.Quantity,
-                    TotalPrice = totalPrice
+                    // TotalPrice = totalPrice
+                    TotalPrice = tempTotalPrice
                 };
 
                 await _orderRepo.AddAsync(order);

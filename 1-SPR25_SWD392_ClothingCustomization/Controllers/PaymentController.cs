@@ -1167,12 +1167,56 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         //    }
         //}
 
+        //[HttpGet("SePay/payment-status")]
+        //public async Task<IActionResult> GetPaymentStatus(int orderId)
+        //{
+        //    if (orderId <= 0)
+        //    {
+        //        return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+        //    }
+
+        //    try
+        //    {
+        //        var order = await _orderService.GetOrderByIdAsync(orderId);
+        //        if (order == null)
+        //        {
+        //            return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+        //        }
+
+        //        var latestStage = await _orderStageService.GetLatestStageByOrderIdAsync(orderId);
+        //        if (latestStage == null)
+        //        {
+        //            // Still pending
+        //            return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+        //        }
+
+        //        var stageName = latestStage.OrderStageName?.ToLower();
+
+        //        if (stageName == "purchased" || stageName == "paid" || stageName == "completed")
+        //        {
+        //            return Redirect("https://cre8wrearx.vercel.app/payment-success");
+        //        }
+        //        else
+        //        {
+        //            return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError("Error checking payment status: " + ex);
+        //        return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+        //    }
+        //}
+
         [HttpGet("SePay/payment-status")]
         public async Task<IActionResult> GetPaymentStatus(int orderId)
         {
+            var successUrl = _configuration["PaymentRedirectUrls:Success"];
+            var failedUrl = _configuration["PaymentRedirectUrls:Failed"];
+
             if (orderId <= 0)
             {
-                return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+                return BadRequest(new { Status = "Failed", linkUrl = failedUrl });
             }
 
             try
@@ -1180,34 +1224,32 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                 var order = await _orderService.GetOrderByIdAsync(orderId);
                 if (order == null)
                 {
-                    return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+                    return NotFound(new { Status = "Failed", linkUrl = failedUrl });
                 }
 
                 var latestStage = await _orderStageService.GetLatestStageByOrderIdAsync(orderId);
                 if (latestStage == null)
                 {
-                    // Still pending
-                    return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+                    return Ok(new { Status = "pending", linkUrl = failedUrl });
                 }
 
                 var stageName = latestStage.OrderStageName?.ToLower();
 
                 if (stageName == "purchased" || stageName == "paid" || stageName == "completed")
                 {
-                    return Redirect("https://cre8wrearx.vercel.app/payment-success");
+                    return Ok(new { Status = "Success", linkUrl = successUrl });
                 }
                 else
                 {
-                    return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+                    return Ok(new { Status = "Failed", linkUrl = failedUrl });
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError("Error checking payment status: " + ex);
-                return Redirect("https://cre8wrearx.vercel.app/payment-failed");
+                return StatusCode(500, new { Status = "error", Message = "Internal server error." });
             }
         }
-
 
     }
 }

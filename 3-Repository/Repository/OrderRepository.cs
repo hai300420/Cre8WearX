@@ -47,12 +47,38 @@ namespace Repository.Repository
 
         public async Task<Order> GetByIdAsync(int id)
         {
-            return await _context.Orders.FindAsync(id);
+            // return await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Include(x => x.OrderStages)
+                .Include(o => o.Payments)
+                .Include(x => x.CustomizeProduct)
+                .Where(oid => oid.OrderId == id)
+                .FirstOrDefaultAsync();
+
+            return order;
         }
 
         public async Task<IEnumerable<Order>> GetAllOrdersAsync()
         {
-            return await _context.Orders.ToListAsync();
+            var orders = await _context.Orders
+                .Include(x => x.OrderStages)
+                .Include(o => o.Payments)
+                .Include(x => x.CustomizeProduct)
+                .ToListAsync();
+
+            return orders;
+        }
+
+        public async Task<IEnumerable<Order>> GetAllMyOrdersAsync(int userId)
+        {
+            var orders = await _context.Orders
+                .Include(x => x.OrderStages)
+                .Include(o => o.Payments)
+                .Include(x => x.CustomizeProduct)
+                .Where(o => o.CustomizeProduct.UserId == userId)
+                .ToListAsync();
+
+            return orders;
         }
         public async Task<CustomizeProduct?> GetCustomizeProductByIdAsync(int id)
         {

@@ -34,6 +34,12 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             return Ok(order);
         }
 
+        [HttpGet("my-order")]
+        public async Task<ActionResult<IEnumerable<Order>>> GetAllMyOrder()
+        {
+            return Ok(await _orderService.GetAllMyOrdersAsync());
+        }
+
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] OrderDTO orderDto)
         {

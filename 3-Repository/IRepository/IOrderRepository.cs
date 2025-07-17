@@ -8,6 +8,7 @@ namespace Repository.IRepository
     public interface IOrderRepository : IGenericRepository<Order>
     {
         Task<IEnumerable<Order>> GetAllOrdersAsync();
+        Task<IEnumerable<Order>> GetAllMyOrdersAsync(int userId);
         Task<CustomizeProduct?> GetCustomizeProductByIdAsync(int id);
         Task<bool> CheckCustomizeProductExists(int customizeProductId);
         Task<Order> GetByIdAsync(int id);

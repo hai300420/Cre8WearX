@@ -177,3 +177,83 @@ POST: https://thisaonao-001-site1.rtempurl.com/api/Orders
   "Quantity": 1,
   "TotalPrice": 2000
 }
+
+
+API: customizeproducts/create-with-order
+Without using Price: Price = 0
+{
+  "ProductId": 9,
+  "UserId": 3,
+  "ShirtColor": "string",
+  "FullImage": "http://printstyle.com.vn/tshirtecommerce//uploaded/design/ctrunew/dg-designer-bbb001ba150475825924988917410043473.png",
+  "Base64Image": "",
+  "DesignMetadata": "string",
+  "Description": "string",
+  "RecipientName": "string",
+  "DeliveryAddress": "string",
+  "ShippingMethod": "string",
+  "ShippingFee": 1000,
+  "Notes": "0124124142",
+  "Price": 0,
+  "Quantity": 1,
+  "DeliveryDate": "2025-07-16T15:40:06.305Z"
+}
+Response body
+{
+  "$id": "1",
+  "CustomizeProductId": 30,
+  "OrderStageId": 53,
+  "ProductId": 9,
+  "ShirtColor": "string",
+  "OrderId": 39,
+  "TotalPrice": 31000,
+  "OrderStatus": "Đã tạo đơn",
+  "OrderDate": "2025-07-16T15:41:56.9084341Z",
+  "Message": "Tạo sản phẩm tùy chỉnh và đơn hàng thành công"
+}
+
+Using Price: Price = 40000
+{
+  "ProductId": 9,
+  "UserId": 3,
+  "ShirtColor": "string",
+  "FullImage": "http://printstyle.com.vn/tshirtecommerce//uploaded/design/ctrunew/dg-designer-bbb001ba150475825924988917410043473.png",
+  "Base64Image": "",
+  "DesignMetadata": "string",
+  "Description": "string",
+  "RecipientName": "string",
+  "DeliveryAddress": "string",
+  "ShippingMethod": "string",
+  "ShippingFee": 1000,
+  "Notes": "0124124142",
+  "Price": 40000,
+  "Quantity": 1,
+  "DeliveryDate": "2025-07-16T15:40:06.305Z"
+}
+Response body
+{
+  "$id": "1",
+  "CustomizeProductId": 32,
+  "OrderStageId": 55,
+  "ProductId": 9,
+  "ShirtColor": "string",
+  "OrderId": 41,
+  "TotalPrice": 41000,
+  "OrderStatus": "Đã tạo đơn",
+  "OrderDate": "2025-07-16T15:49:42.9344897Z",
+  "Message": "Tạo sản phẩm tùy chỉnh và đơn hàng thành công"
+}
+
+PUT: users/{id}
+{
+  "Username": "staff1",                   // Unchange
+  "Email": "staff@example.com",
+  "FullName": "Tran Van B",
+  "Gender": true,
+  "DateOfBirth": "1992-02-02",
+  "Address": "456 XYZ Street22",
+  "Phone": "0933358683",
+  "Avatar": "",
+  "IsDeleted": false,
+  "RoleName": "Staff"
+}

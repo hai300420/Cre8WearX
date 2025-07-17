@@ -54,6 +54,7 @@ namespace BusinessObject.RequestDTO
 
             public string Notes { get; set; }
 
+            public decimal Price { get; set; } = 0;
             [Required]
             [Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1")]
             public int Quantity { get; set; } = 1;

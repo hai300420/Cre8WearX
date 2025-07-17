@@ -6,6 +6,10 @@ using Repository.IRepository;
 using System;
 using Repository.Repository;
 using static BusinessObject.RequestDTO.RequestDTO;
+using Microsoft.AspNetCore.Http;
+using _3_Repository.Repository;
+using BusinessObject.ResponseDTO;
+using BusinessObject;
 
 namespace _2_Service.Service
 {
@@ -13,6 +17,7 @@ namespace _2_Service.Service
     {
         Task<IEnumerable<Order>> GetAllOrdersAsync();
         Task<Order> GetOrderByIdAsync(int id);
+        Task<IEnumerable<Order>> GetAllMyOrdersAsync();
         Task AddOrderAsync(Order order);
         Task UpdateOrderAsync(Order order);
         Task DeleteOrderAsync(int id);
@@ -29,21 +34,43 @@ namespace _2_Service.Service
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderStageRepository _orderStageRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public OrderService(IOrderRepository orderRepository, IOrderStageRepository orderStageRepository)
+        public OrderService(IOrderRepository orderRepository, IOrderStageRepository orderStageRepository, IHttpContextAccessor httpContextAccessor)
         {
             _orderRepository = orderRepository;
             _orderStageRepository = orderStageRepository;
+            _httpContextAccessor = httpContextAccessor;
+
         }
 
         public async Task<IEnumerable<Order>> GetAllOrdersAsync()
         {
-            return await _orderRepository.GetAllAsync();
+            //return await _orderRepository.GetAllAsync();
+            return await _orderRepository.GetAllOrdersAsync();
         }
 
         public async Task<Order> GetOrderByIdAsync(int id)
         {
             return await _orderRepository.GetByIdAsync(id);
+        }
+
+        public async Task<IEnumerable<Order>> GetAllMyOrdersAsync()
+        {
+            var userIdClaim = _httpContextAccessor.HttpContext?.User.Claims
+                                .FirstOrDefault(c => c.Type == "User_Id");
+
+            if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value))
+            {
+                return Enumerable.Empty<Order>(); // Return empty
+            }
+
+            if (!int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Enumerable.Empty<Order>(); // Return empty
+            }
+
+            return await _orderRepository.GetAllMyOrdersAsync(userId);
         }
 
         //public async Task AddOrderAsync(Order order)
@@ -110,7 +137,8 @@ namespace _2_Service.Service
                     throw new ArgumentException("Price and Quantity must be greater than zero.");
                 }
 
-                // ✅ Tự động tính TotalPrice
+
+                // Tự động tính TotalPrice
                 order.TotalPrice = order.Price * order.Quantity;
 
                 // Add order
