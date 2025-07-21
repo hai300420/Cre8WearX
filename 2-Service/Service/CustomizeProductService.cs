@@ -467,6 +467,8 @@ namespace _2_Service.Service
                     ShippingFee = (double)dto.ShippingFee,
                     Notes = dto.Notes,
                     Price = price,
+                    Description = dto.OrderDescription,
+                    Size = dto.Size,
                     // Price = product.Price,
                     Quantity = dto.Quantity,
                     // TotalPrice = totalPrice

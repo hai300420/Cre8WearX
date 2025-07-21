@@ -22,6 +22,8 @@ public partial class Order
     public double? ShippingFee { get; set; }
 
     public string? Notes { get; set; }
+    public string? Description { get; set; }
+    public string? Size { get; set; }
 
     public decimal? Price { get; set; }
 

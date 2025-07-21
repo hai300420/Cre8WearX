@@ -257,3 +257,26 @@ PUT: users/{id}
   "IsDeleted": false,
   "RoleName": "Staff"
 }
+
+
+New: POST /api/customizeproducts/create-with-order
+{
+  "ProductId": 5,
+  "UserId": 3,
+  "ShirtColor": "string",
+  "FullImage": "http://printstyle.com.vn/tshirtecommerce//uploaded/design/ctrunew/dg-designer-bbb001ba150475825924988917410043473.png",
+  "Base64Image": "",
+  "DesignMetadata": "string",
+  "Description": "string",
+  "RecipientName": "string",
+  "DeliveryAddress": "string",
+  "ShippingMethod": "string",
+  "ShippingFee": 1000,
+  "Notes": "0124124142",
+  "OrderDescription": "This is Order Description",
+  "Size": "XXL",
+  "Price": 0,
+  "Quantity": 1,
+  "DeliveryDate": "2025-07-16T15:40:06.305Z"
+}
+New

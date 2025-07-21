@@ -155,7 +155,8 @@ namespace _2_Service.Service
                 OrderStage orderStage = new OrderStage
                 {
                     OrderId = savedOrder.OrderId,
-                    OrderStageName = "Place Order", 
+                    // OrderStageName = "Place Order", 
+                    OrderStageName = "Đặt hàng",
                     UpdatedDate = DateTime.Now
                 };
 
@@ -264,10 +265,10 @@ namespace _2_Service.Service
                 //    "July", "August", "September", "October", "November", "December"
                 //},
                 Labels = new List<string>
-{
-    "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
-    "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
-},
+                {
+                    "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+                    "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+                },
                 Datasets = new List<RevenueDataset>
         {
             new RevenueDataset
@@ -292,7 +293,8 @@ namespace _2_Service.Service
             var paymentStage = new OrderStage
             {
                 OrderId = orderId,
-                OrderStageName = "Payment Completed", // or "Đã thanh toán"
+                // OrderStageName = "Payment Completed", // or "Đã thanh toán"
+                OrderStageName = "Đã thanh toán", // or "Đã thanh toán"
                 UpdatedDate = DateTime.Now
             };
 

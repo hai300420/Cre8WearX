@@ -212,7 +212,8 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                     {
                         OrderStageId = existingOrderStageDto.OrderStageId,
                         OrderId = existingOrderStageDto.OrderId,
-                        OrderStageName = "Purchased",
+                        // OrderStageName = "Purchased",
+                        OrderStageName = "Đã thanh toán",
                         UpdatedDate = DateTime.UtcNow
                     };
 
@@ -227,7 +228,8 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                     var orderStageDto = new OrderStageCreateDTO
                     {
                         OrderId = paymentDto.OrderId,
-                        OrderStageName = "Purchased",
+                        // OrderStageName = "Purchased",
+                        OrderStageName = "Đã thanh toán",
                         UpdatedDate = DateTime.UtcNow
                     };
 
@@ -1052,7 +1054,8 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                 _logger.LogInformation($"Saved payment for order {orderId}");
 
                 // Determine order stage
-                string orderStage = request.TransferAmount < totalAmountRequired ? "Partially Paid" : "Purchased";
+                // string orderStage = request.TransferAmount < totalAmountRequired ? "Partially Paid" : "Purchased";
+                string orderStage = request.TransferAmount < totalAmountRequired ? "Được trả một phần" : "Đã thanh toán";
 
                 // Update or create order stage
                 //var stageResponse = await _orderStageService.GetOrderStageByOrderIdAsync(orderId);
@@ -1216,7 +1219,7 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
 
             if (orderId <= 0)
             {
-                return BadRequest(new { Status = "Failed", linkUrl = failedUrl });
+                return BadRequest(new { Status = "Failed", Message = "Invalid order Id" });
             }
 
             try
@@ -1224,7 +1227,7 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                 var order = await _orderService.GetOrderByIdAsync(orderId);
                 if (order == null)
                 {
-                    return NotFound(new { Status = "Failed", linkUrl = failedUrl });
+                    return NotFound(new { Status = "Failed", Message = $"Order {orderId} does not exist" });
                 }
 
                 var latestStage = await _orderStageService.GetLatestStageByOrderIdAsync(orderId);
@@ -1235,7 +1238,11 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
 
                 var stageName = latestStage.OrderStageName?.ToLower();
 
-                if (stageName == "purchased" || stageName == "paid" || stageName == "completed")
+                // if (stageName == "purchased" || stageName == "paid" || stageName == "completed" || stageName == "Đã mua")
+                if (string.Equals(stageName, "Đã thanh toán", StringComparison.InvariantCultureIgnoreCase) ||
+                    string.Equals(stageName, "purchased", StringComparison.InvariantCultureIgnoreCase) ||
+                    string.Equals(stageName, "paid", StringComparison.InvariantCultureIgnoreCase) ||
+                    string.Equals(stageName, "completed", StringComparison.InvariantCultureIgnoreCase))
                 {
                     return Ok(new { Status = "Success", linkUrl = successUrl });
                 }

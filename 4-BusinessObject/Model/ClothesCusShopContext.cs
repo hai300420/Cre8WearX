@@ -198,6 +198,8 @@ public partial class ClothesCusShopContext : DbContext
             entity.Property(e => e.DeliveryAddress).HasMaxLength(250);
             entity.Property(e => e.DeliveryDate).HasColumnType("datetime");
             entity.Property(e => e.Notes).HasMaxLength(250);
+            entity.Property(e => e.Description).HasMaxLength(250);
+            entity.Property(e => e.Size).HasMaxLength(250);
             entity.Property(e => e.OrderDate).HasColumnType("datetime");
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.RecipientName).HasMaxLength(250);

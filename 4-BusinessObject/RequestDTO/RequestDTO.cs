@@ -53,6 +53,8 @@ namespace BusinessObject.RequestDTO
             public decimal ShippingFee { get; set; } = 0;
 
             public string Notes { get; set; }
+            public string? OrderDescription { get; set; } // This one is different
+            public string? Size { get; set; }
 
             public decimal Price { get; set; } = 0;
             [Required]
@@ -361,6 +363,8 @@ namespace BusinessObject.RequestDTO
             public string? ShippingMethod { get; set; }
             public double? ShippingFee { get; set; }
             public string? Notes { get; set; }
+            public string? Description { get; set; }
+            public string? Size { get; set; }
             public decimal? Price { get; set; }
             public int? Quantity { get; set; }
             public decimal? TotalPrice { get; set; }
@@ -383,6 +387,8 @@ namespace BusinessObject.RequestDTO
             public string? ShippingMethod { get; set; }
             public double? ShippingFee { get; set; }
             public string? Notes { get; set; }
+            public string? Description { get; set; }
+            public string? Size { get; set; }
 
             [Required]
             public decimal Price { get; set; }
@@ -406,6 +412,8 @@ namespace BusinessObject.RequestDTO
             public string? ShippingMethod { get; set; }
             public double? ShippingFee { get; set; }
             public string? Notes { get; set; }
+            public string? Description { get; set; }
+            public string? Size { get; set; }
             public decimal? Price { get; set; }
             public int? Quantity { get; set; }
             public decimal? TotalPrice { get; set; }
@@ -422,6 +430,8 @@ namespace BusinessObject.RequestDTO
             public string? ShippingMethod { get; set; }
             public double? ShippingFee { get; set; }
             public string? Notes { get; set; }
+            public string? Description { get; set; }
+            public string? Size { get; set; }
             public decimal? Price { get; set; }
             public int? Quantity { get; set; }
             public decimal? TotalPrice { get; set; }
