@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace BusinessObject.Model;
 
@@ -25,6 +26,7 @@ public partial class CustomizeProduct
 
     public virtual ICollection<DesignElement> DesignElements { get; set; } = new List<DesignElement>();
 
+    [JsonIgnore]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual Product Product { get; set; } = null!;

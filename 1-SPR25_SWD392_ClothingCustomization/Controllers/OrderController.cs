@@ -13,10 +13,13 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
+        private readonly IPaymentService _paymentService;
 
-        public OrderController(IOrderService orderService)
+        public OrderController(IOrderService orderService, IPaymentService paymentService)
         {
             _orderService = orderService;
+            _paymentService = paymentService;
+
         }
 
         [HttpGet]
@@ -24,6 +27,105 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
         {
             return Ok(await _orderService.GetAllOrdersAsync());
         }
+
+        #region Filter
+        [HttpGet("filter-paid-orders")]
+        public async Task<ActionResult<IEnumerable<Order>>> GetFilteredPaidOrders(
+            [FromQuery] bool? paidOnline = null,
+            [FromQuery] bool? paidInCash = null)
+        {
+            var allOrders = await _orderService.GetAllOrdersAsync();
+
+            // Get payments to determine payment type
+            var allPayments = await _paymentService.GetAllPaymentsAsync(); // You need this method
+            var paymentDict = allPayments.ToDictionary(p => p.OrderId, p => p);
+
+            var paidOrders = allOrders
+                .Where(order =>
+                    paymentDict.TryGetValue(order.OrderId, out var payment) &&
+                    (
+                        (payment.TotalAmount == payment.DepositPaid &&
+                         payment.TotalAmount == payment.DepositAmount)
+                        || payment.DepositPaid == 0.01m
+                    )
+                );
+
+            // Return all if no filter or both true
+            if ((paidOnline == null && paidInCash == null) || (paidOnline == true && paidInCash == true))
+            {
+                return Ok(allOrders);
+            }
+
+            var filtered = paidOrders.Where(order =>
+            {
+                if (!paymentDict.TryGetValue(order.OrderId, out var payment))
+                    return false;
+
+                if (paidOnline == true)
+                {
+                    return payment.TotalAmount == payment.DepositPaid && payment.TotalAmount == payment.DepositAmount;
+                }
+                else if (paidInCash == true)
+                {
+                    return payment.DepositPaid == 0.01m;
+                }
+
+                return false;
+            });
+
+            return Ok(filtered);
+        }
+
+
+        [HttpGet("filter-payment-methods")]
+        public async Task<ActionResult<IEnumerable<Order>>> GetFilteredPaymentMethods(
+            [FromQuery] bool? paidOnline = null,
+            [FromQuery] bool? paidInCash = null)
+        {
+            var allOrders = await _orderService.GetAllOrdersAsync();
+            var allPayments = await _paymentService.GetAllPaymentsAsync();
+            var paymentDict = allPayments.ToDictionary(p => p.OrderId, p => p);
+
+            var filtered = allOrders.Where(order =>
+            {
+                if (paymentDict.TryGetValue(order.OrderId, out var payment))
+                {
+                    var total = payment.TotalAmount.GetValueOrDefault();
+                    var depositPaid = payment.DepositPaid.GetValueOrDefault();
+                    var depositAmount = payment.DepositAmount.GetValueOrDefault();
+
+                    bool isOnline = total == depositPaid && total == depositAmount;
+
+                    if ((paidOnline == null && paidInCash == null) || (paidOnline == true && paidInCash == true))
+                        return isOnline;
+
+                    if (paidOnline == true)
+                        return isOnline;
+
+                    // not considered cash if it has a payment record
+                    return false;
+                }
+                else
+                {
+                    // No payment = assumed paid in cash
+                    if ((paidOnline == null && paidInCash == null) || (paidOnline == true && paidInCash == true))
+                        return true;
+
+                    if (paidInCash == true)
+                        return true;
+
+                    return false;
+                }
+            });
+
+            return Ok(filtered);
+        }
+
+
+
+
+        #endregion
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetById(int id)
@@ -96,21 +198,21 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                 return NotFound(new { message = $"Order with ID {id} not found." });
             }
 
-            // 🛑 Kiểm tra `CustomizeProductId` có tồn tại không
+            // Kiểm tra `CustomizeProductId` có tồn tại không
             var existingProduct = await _orderService.CheckCustomizeProductExists(orderDto.CustomizeProductId);
             if (!existingProduct)
             {
                 return BadRequest(new { message = $"CustomizeProductId {orderDto.CustomizeProductId} does not exist. Please provide a valid CustomizeProductId." });
             }
 
-            // 🛑 Kiểm tra các giá trị quan trọng
+            // Kiểm tra các giá trị quan trọng
           
             if (orderDto.Price <= 0 || orderDto.Quantity <= 0)
             {
                 throw new ArgumentException("Price, Quantity must be greater than zero.");
             }
             orderDto.TotalPrice = orderDto.Price * orderDto.Quantity;
-            // ✅ Cập nhật dữ liệu Order
+            // Cập nhật dữ liệu Order
             existingOrder.CustomizeProductId = orderDto.CustomizeProductId;
             existingOrder.OrderDate = orderDto.OrderDate;
             existingOrder.DeliveryDate = orderDto.DeliveryDate;

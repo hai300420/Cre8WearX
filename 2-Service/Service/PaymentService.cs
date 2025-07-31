@@ -1,4 +1,5 @@
-﻿using BusinessObject.Model;
+﻿using _3_Repository.IRepository;
+using BusinessObject.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +11,25 @@ namespace _2_Service.Service
     public interface IPaymentService
     {
         Task SavePaymentAsync(Payment payment);
+        Task<IEnumerable<Payment>> GetAllPaymentsAsync();
     }
 
     public class PaymentService : IPaymentService
     {
-        private readonly ClothesCusShopContext _context;
+        //private readonly ClothesCusShopContext _context;
 
-        public PaymentService(ClothesCusShopContext context)
+        //public PaymentService(ClothesCusShopContext context)
+        //{
+        //    _context = context;
+        //}
+
+        private readonly IPaymentRepository _paymentRepository;
+
+        public PaymentService(IPaymentRepository paymentRepository)
         {
-            _context = context;
+            _paymentRepository = paymentRepository;
         }
+
 
         public async Task SavePaymentAsync(Payment payment)
         {
@@ -27,8 +37,17 @@ namespace _2_Service.Service
             var vietnamTime = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, vietnamTimeZone);
 
             payment.PaymentDate = vietnamTime.DateTime; // Lấy phần DateTime chuẩn
-            _context.Payments.Add(payment);
-            await _context.SaveChangesAsync();
+
+            //_context.Payments.Add(payment);
+            //await _context.SaveChangesAsync();
+            await _paymentRepository.SavePaymentAsync(payment);
         }
+
+        public async Task<IEnumerable<Payment>> GetAllPaymentsAsync()
+        {
+
+            return await _paymentRepository.GetAllPaymentsAsync();
+        }
+
     }
 }

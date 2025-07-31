@@ -70,6 +70,12 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
 
         }
 
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Payment>>> GetAll()
+        {
+            return Ok(await _paymentService.GetAllPaymentsAsync());
+        }
+
 
         #region Old payment
 

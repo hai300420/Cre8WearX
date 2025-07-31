@@ -198,6 +198,7 @@ builder.Services.AddScoped<IDesignElementRepository, DesignElementRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderStageRepository, OrderStageRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 // Đăng ký Service
 builder.Services.AddScoped<IUserService, UserService>();
