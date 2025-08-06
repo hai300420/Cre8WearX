@@ -20,6 +20,7 @@ using VNPAY.NET;
 using _4_BusinessObject.RequestDTO;
 using _2_Service.ThirdPartyService;
 using _2_Service.Momo;
+using _2_Service.Service.IService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -189,9 +190,9 @@ builder.Services.AddScoped<IJWTService, JWTService>();
 //Đăng ký Repository
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IFeedbackService, FeedbackService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<ICustomizeProductRepository, CustomizeProductRepository>();
 builder.Services.AddScoped<IDesignAreaRepository, DesignAreaRepository>();
 builder.Services.AddScoped<IDesignElementRepository, DesignElementRepository>();
@@ -199,13 +200,14 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderStageRepository, OrderStageRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentMappingRepository, PaymentMappingRepository>();
 
 // Đăng ký Service
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICustomizeProductService, CustomizeProductService>();
 builder.Services.AddScoped<IDesignAreaService, DesignAreaService>();
@@ -258,7 +260,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction() || app.Env
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "SWD392 v1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "EXE201 v1");
         c.InjectStylesheet("/static/css/swaggerui-dark.css"); // Optional: Custom styling for Swagger
     });
 }

@@ -1,4 +1,5 @@
-﻿using _3_Repository.IRepository;
+﻿using _2_Service.Service.IService;
+using _3_Repository.IRepository;
 using BusinessObject.Model;
 using System;
 using System.Collections.Generic;
@@ -8,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace _2_Service.Service
 {
-    public interface IPaymentService
-    {
-        Task SavePaymentAsync(Payment payment);
-        Task<IEnumerable<Payment>> GetAllPaymentsAsync();
-    }
+    //public interface IPaymentService
+    //{
+    //    Task SavePaymentAsync(Payment payment);
+    //    Task<IEnumerable<Payment>> GetAllPaymentsAsync();
+    //}
 
     public class PaymentService : IPaymentService
     {

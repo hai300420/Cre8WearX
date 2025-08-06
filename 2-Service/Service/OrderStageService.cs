@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using _2_Service.Service.IService;
+using AutoMapper;
 using BusinessObject.Enum;
 using BusinessObject.Model;
 using BusinessObject.ResponseDTO;
@@ -12,21 +13,23 @@ using static BusinessObject.ResponseDTO.ResponseDTO;
 
 namespace Service.Service
 {
-    public interface IOrderStageService
-    {
-        Task<ResponseDTO> GetAllOrderStagesAsync();
-        Task<ResponseDTO> GetOrderStageByIdAsync(int id);
-        Task<ResponseDTO> CreateOrderStageAsync(OrderStageCreateDTO orderStageDto);
-        Task<ResponseDTO> DeleteOrderStageAsync(int id);
+    //public interface IOrderStageService
+    //{
+    //    Task<ResponseDTO> GetAllOrderStagesAsync();
+    //    Task<ResponseDTO> GetOrderStageByIdAsync(int id);
+    //    Task<ResponseDTO> CreateOrderStageAsync(OrderStageCreateDTO orderStageDto);
+    //    Task<ResponseDTO> DeleteOrderStageAsync(int id);
 
-        //Task CreateOrderStageAsync(OrderStage orderStageDto);
+    //    //Task CreateOrderStageAsync(OrderStage orderStageDto);
 
-        // new method
-        Task<ResponseDTO> GetOrderStageByOrderIdAsync(int orderId);
-        Task<ResponseDTO> UpdateOrderStageAsync(OrderStage existingOrderStage);
-        Task<OrderStage?> GetLatestStageByOrderIdAsync(int orderId);
+    //    // new method
+    //    Task<ResponseDTO> GetOrderStageByOrderIdAsync(int orderId);
+    //    Task<ResponseDTO> UpdateOrderStageAsync(OrderStage existingOrderStage);
+    //    Task<OrderStage?> GetLatestStageByOrderIdAsync(int orderId);
 
-    }
+    //}
+
+
     public class OrderStageService : IOrderStageService
     {
         private readonly IUnitOfWork _unitOfWork;

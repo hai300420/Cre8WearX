@@ -1,4 +1,5 @@
-﻿using _2_Service.Utils;
+﻿using _2_Service.Service.IService;
+using _2_Service.Utils;
 using _3_Repository.IRepository;
 using _3_Repository.Repository;
 using Azure.Core;
@@ -23,25 +24,25 @@ using static BusinessObject.ResponseDTO.ResponseDTO;
 
 namespace _2_Service.Service
 {
-    public interface IUserService
-    {
-        #region CRUD User
-        Task<IEnumerable<User>> GetAllUsers();
-        Task<User> GetUserById(int id);
-        Task AddUser(UserRegisterDTO userDto);
-        Task UpdateUser(int id, UserDTO userDto);
-        Task DeleteUser(int id);
-        #endregion
+    //public interface IUserService
+    //{
+    //    #region CRUD User
+    //    Task<IEnumerable<User>> GetAllUsers();
+    //    Task<User> GetUserById(int id);
+    //    Task AddUser(UserRegisterDTO userDto);
+    //    Task UpdateUser(int id, UserDTO userDto);
+    //    Task DeleteUser(int id);
+    //    #endregion
+
+    //    Task<ResponseDTO> Login(LoginRequestDTO userDto);
+    //    Task<ResponseDTO> ChangePassword(ChangePasswordDTO userDto);
+    //    Task<string> GoogleLoginAsync(string idToken);
+    //    Task RecoverUser(int id);
+    //    Task<ResponseDTO> GetUserProfile();
+    //    Task<ResponseDTO> UpdateUserProfile(UserUpdateDTO userDto);
+    //}
 
 
-
-        Task<ResponseDTO> Login(LoginRequestDTO userDto);
-        Task<ResponseDTO> ChangePassword(ChangePasswordDTO userDto);
-        Task<string> GoogleLoginAsync(string idToken);
-        Task RecoverUser(int id);
-        Task<ResponseDTO> GetUserProfile();
-        Task<ResponseDTO> UpdateUserProfile(UserUpdateDTO userDto);
-    }
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;

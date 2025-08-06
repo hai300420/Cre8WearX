@@ -16,31 +16,32 @@ using _2_Service.ThirdPartyService;
 using BusinessObject.ResponseDTO;
 using BusinessObject;
 using Microsoft.AspNetCore.Http;
+using _2_Service.Service.IService;
 
 namespace _2_Service.Service
 {
-    public interface ICustomizeProductService
-    {
-        Task<IEnumerable<CustomizeProduct>> GetAllCustomizeProducts();
-        Task<CustomizeProduct> GetCustomizeProductById(int id);
-        Task AddCustomizeProduct(CustomizeProduct customizeProduct);
-        Task UpdateCustomizeProduct(CustomizeProduct customizeProduct);
-        Task DeleteCustomizeProduct(int id);
-        Task<List<ProductCustomizationCountDto>> GetProductCustomizationCounts();
-        Task<IEnumerable<CustomizeProduct>> GetAllCustomizeProductsAsync();
-        Task<CustomizeProduct> GetCustomizeProductByIdAsync(int id);
-        Task<IEnumerable<CustomizeProduct>> GetCustomizeProductsByCurrentUserAsync(int userId);
-        Task UpdateCustomizeProductAsync(CustomizeProduct product);
-        Task DeleteCustomizeProductAsync(int id);
-        // Task<CustomizeProduct> CreateCustomizeProductAsync(CustomizeProduct product);
-        Task<CustomizeProduct> CreateCustomizeProductAsync(CreateCustomizeDto dto);
-        Task<CustomizeProductWithOrderResponse> CreateCustomizeProductWithOrderAsync(CreateCustomizeWithOrderDto dto);
-        Task<IEnumerable<CustomizeProduct>> GetAllCustomizeProducts(int pageNumber, int pageSize);
-        Task<IEnumerable<CustomizeProduct>> GetMyCustomizeProducts(int pageNumber, int pageSize);
+    //public interface ICustomizeProductService
+    //{
+    //    Task<IEnumerable<CustomizeProduct>> GetAllCustomizeProducts();
+    //    Task<CustomizeProduct> GetCustomizeProductById(int id);
+    //    Task AddCustomizeProduct(CustomizeProduct customizeProduct);
+    //    Task UpdateCustomizeProduct(CustomizeProduct customizeProduct);
+    //    Task DeleteCustomizeProduct(int id);
+    //    Task<List<ProductCustomizationCountDto>> GetProductCustomizationCounts();
+    //    Task<IEnumerable<CustomizeProduct>> GetAllCustomizeProductsAsync();
+    //    Task<CustomizeProduct> GetCustomizeProductByIdAsync(int id);
+    //    Task<IEnumerable<CustomizeProduct>> GetCustomizeProductsByCurrentUserAsync(int userId);
+    //    Task UpdateCustomizeProductAsync(CustomizeProduct product);
+    //    Task DeleteCustomizeProductAsync(int id);
+    //    // Task<CustomizeProduct> CreateCustomizeProductAsync(CustomizeProduct product);
+    //    Task<CustomizeProduct> CreateCustomizeProductAsync(CreateCustomizeDto dto);
+    //    Task<CustomizeProductWithOrderResponse> CreateCustomizeProductWithOrderAsync(CreateCustomizeWithOrderDto dto);
+    //    Task<IEnumerable<CustomizeProduct>> GetAllCustomizeProducts(int pageNumber, int pageSize);
+    //    Task<IEnumerable<CustomizeProduct>> GetMyCustomizeProducts(int pageNumber, int pageSize);
+
+    //}
 
 
-
-    }
     public class CustomizeProductService : ICustomizeProductService
     {
         private readonly ICustomizeProductRepository _customizeProductRepository;

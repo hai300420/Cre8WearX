@@ -1,4 +1,5 @@
-﻿using _3_Repository.IRepository;
+﻿using _2_Service.Service.IService;
+using _3_Repository.IRepository;
 using BusinessObject.Model;
 using Repository.IRepository;
 using Repository.Repository;
@@ -11,18 +12,18 @@ using System.Threading.Tasks;
 
 namespace _2_Service.Service
 {
-    public interface IRoleService
-    {
-        #region CRUD Category
-        Task<IEnumerable<Role>> GetAllRoles();
-        Task<Role> GetRoleById(int id);
-        Task AddRole(Role role);
-        Task UpdateRole(Role role);
-        Task DeleteRole(int id);
-        #endregion
+    //public interface IRoleService
+    //{
+    //    #region CRUD Category
+    //    Task<IEnumerable<Role>> GetAllRoles();
+    //    Task<Role> GetRoleById(int id);
+    //    Task AddRole(Role role);
+    //    Task UpdateRole(Role role);
+    //    Task DeleteRole(int id);
+    //    #endregion
 
-        Task<Role> GetIdRoleByName(string name);
-    }
+    //    Task<Role> GetIdRoleByName(string name);
+    //}
 
     public class RoleService : IRoleService
     {

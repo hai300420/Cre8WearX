@@ -1,4 +1,6 @@
-﻿using BusinessObject.Model;
+﻿using _2_Service.Service.IService;
+using _3_Repository.IRepository;
+using BusinessObject.Model;
 using Google;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,29 +12,53 @@ using static BusinessObject.RequestDTO.RequestDTO;
 
 namespace _2_Service.Service
 {
-    public interface IPaymentMappingService
-    {
-        Task SaveMappingAsync(PaymentMapping mapping);
-        Task<PaymentMapping?> GetByVnpTxnRefAsync(string vnpTxnRef);
-    }
+    //#region Old code
+    //public interface IPaymentMappingService
+    //{
+    //    Task SaveMappingAsync(PaymentMapping mapping);
+    //    Task<PaymentMapping?> GetByVnpTxnRefAsync(string vnpTxnRef);
+    //}
+    //public class PaymentMappingService : IPaymentMappingService
+    //{
+    //    private readonly ClothesCusShopContext _context;
+
+    //    public PaymentMappingService(ClothesCusShopContext context)
+    //    {
+    //        _context = context;
+    //    }
+
+    //    public async Task SaveMappingAsync(PaymentMapping mapping)
+    //    {
+    //        await _context.PaymentMappings.AddAsync(mapping);
+    //        await _context.SaveChangesAsync();
+    //    }
+
+    //    public async Task<PaymentMapping?> GetByVnpTxnRefAsync(string vnpTxnRef)
+    //    {
+    //        return await _context.PaymentMappings.FirstOrDefaultAsync(m => m.VnpTxnRef == vnpTxnRef);
+    //    }
+    //}
+    //#endregion
+
     public class PaymentMappingService : IPaymentMappingService
     {
-        private readonly ClothesCusShopContext _context;
+        private readonly IPaymentMappingRepository _paymentMappingRepository;
 
-        public PaymentMappingService(ClothesCusShopContext context)
+        public PaymentMappingService(IPaymentMappingRepository paymentMappingRepository)
         {
-            _context = context;
+            _paymentMappingRepository = paymentMappingRepository;
         }
 
-        public async Task SaveMappingAsync(PaymentMapping mapping)
+        public Task SaveMappingAsync(PaymentMapping mapping)
         {
-            await _context.PaymentMappings.AddAsync(mapping);
-            await _context.SaveChangesAsync();
+            return _paymentMappingRepository.SaveMappingAsync(mapping);
         }
 
-        public async Task<PaymentMapping?> GetByVnpTxnRefAsync(string vnpTxnRef)
+        public Task<PaymentMapping?> GetByVnpTxnRefAsync(string vnpTxnRef)
         {
-            return await _context.PaymentMappings.FirstOrDefaultAsync(m => m.VnpTxnRef == vnpTxnRef);
+            return _paymentMappingRepository.GetByVnpTxnRefAsync(vnpTxnRef);
         }
     }
+
+
 }

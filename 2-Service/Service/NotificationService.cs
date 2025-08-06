@@ -1,4 +1,5 @@
-﻿using _3_Repository.IRepository;
+﻿using _2_Service.Service.IService;
+using _3_Repository.IRepository;
 using _3_Repository.Repository;
 using BusinessObject;
 using BusinessObject.Model;
@@ -14,21 +15,24 @@ using static BusinessObject.RequestDTO.RequestDTO;
 
 namespace _2_Service.Service
 {
-    public interface INotificationService
-    {
-        #region CRUD Notifications
-        Task<IEnumerable<Notification>> GetAllNotifications();
-        Task<Notification> GetNotificationById(int id);
-        Task<ResponseDTO> AddNotification(PostNotificationDTO notificationDto);
-        Task<ResponseDTO> UpdateNotification(int id, PutNotificationDTO notificationDto);
-        Task<ResponseDTO> DeleteNotification(int id);
-        #endregion
+
+    //public interface INotificationService
+    //{
+    //    #region CRUD Notifications
+    //    Task<IEnumerable<Notification>> GetAllNotifications();
+    //    Task<Notification> GetNotificationById(int id);
+    //    Task<ResponseDTO> AddNotification(PostNotificationDTO notificationDto);
+    //    Task<ResponseDTO> UpdateNotification(int id, PutNotificationDTO notificationDto);
+    //    Task<ResponseDTO> DeleteNotification(int id);
+    //    #endregion
 
 
-        Task<ResponseDTO> SendNotificationToSpecificRole(string subject, string message, string role);
-        Task<ResponseDTO> GetAllNotificationsRoleAndTimeRange(string role, DateTime? fromDate, DateTime? toDate);
-        Task<ResponseDTO> DeleteNotificationsRoleAndTimeRange(string role, DateTime? fromDate, DateTime? toDate);
-    }
+    //    Task<ResponseDTO> SendNotificationToSpecificRole(string subject, string message, string role);
+    //    Task<ResponseDTO> GetAllNotificationsRoleAndTimeRange(string role, DateTime? fromDate, DateTime? toDate);
+    //    Task<ResponseDTO> DeleteNotificationsRoleAndTimeRange(string role, DateTime? fromDate, DateTime? toDate);
+    //}
+
+
     public class NotificationService : INotificationService
     {
         private readonly INotificationRepository _notificationRepository;

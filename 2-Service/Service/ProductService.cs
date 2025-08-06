@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using _2_Service.Service.IService;
 using _2_Service.ThirdPartyService;
 using AutoMapper;
 using BusinessObject;
@@ -13,15 +14,17 @@ using static BusinessObject.ResponseDTO.ResponseDTO;
 
 namespace Service.Service
 {
-    public interface IProductService
-    {
-        Task<ResponseDTO> GetListProductsAsync();
-        Task<ResponseDTO> GetAvailableProductsAsync();
-        Task<ResponseDTO> GetProductByIdAsync(int id);
-        Task<ResponseDTO> CreateProductAsync(ProductCreateDTO productDto);
-        Task<ResponseDTO> UpdateProductAsync(ProductUpdateDTO productDto);
-        Task<ResponseDTO> DeleteProductAsync(int id);
-    }
+    //public interface IProductService
+    //{
+    //    Task<ResponseDTO> GetListProductsAsync();
+    //    Task<ResponseDTO> GetAvailableProductsAsync();
+    //    Task<ResponseDTO> GetProductByIdAsync(int id);
+    //    Task<ResponseDTO> CreateProductAsync(ProductCreateDTO productDto);
+    //    Task<ResponseDTO> UpdateProductAsync(ProductUpdateDTO productDto);
+    //    Task<ResponseDTO> DeleteProductAsync(int id);
+    //}
+
+
     public class ProductService : IProductService
     {
         private readonly IUnitOfWork _unitOfWork;

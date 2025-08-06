@@ -6,18 +6,19 @@ using Service;
 using static BusinessObject.RequestDTO.RequestDTO;
 using static BusinessObject.ResponseDTO.ResponseDTO;
 using Microsoft.EntityFrameworkCore;
+using _2_Service.Service.IService;
 
 namespace Service.Service
 {
-    public interface ICategoryService
-    {
-        Task<ResponseDTO> GetListCategoriesAsync();
-        Task<ResponseDTO> GetCategoryByIdAsync(int categoryId);
-        Task<ResponseDTO> GetProductsByCategoryIdAsync(int categoryId); // Lấy sản phẩm theo Category
-        Task<ResponseDTO> CreateCategoryAsync(CategoryCreateDTO categoryDto);
-        Task<ResponseDTO> UpdateCategoryAsync(CategoryUpdateDTO categoryDto);
-        Task<ResponseDTO> DeleteCategoryAsync(int categoryId);
-    }
+    //public interface ICategoryService
+    //{
+    //    Task<ResponseDTO> GetListCategoriesAsync();
+    //    Task<ResponseDTO> GetCategoryByIdAsync(int categoryId);
+    //    Task<ResponseDTO> GetProductsByCategoryIdAsync(int categoryId); // Lấy sản phẩm theo Category
+    //    Task<ResponseDTO> CreateCategoryAsync(CategoryCreateDTO categoryDto);
+    //    Task<ResponseDTO> UpdateCategoryAsync(CategoryUpdateDTO categoryDto);
+    //    Task<ResponseDTO> DeleteCategoryAsync(int categoryId);
+    //}
 
     public class CategoryService : ICategoryService
     {

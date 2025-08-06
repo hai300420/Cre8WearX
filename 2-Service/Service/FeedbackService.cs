@@ -10,17 +10,18 @@ using System.Threading.Tasks;
 using static BusinessObject.RequestDTO.RequestDTO;
 using static BusinessObject.ResponseDTO.ResponseDTO;
 using _3_Repository.IRepository;
+using _2_Service.Service.IService;
 
 namespace _2_Service.Service
 {
-    public interface IFeedbackService
-    {
-        Task<IEnumerable<Feedback>> GetAllFeedbacks();
-        Task<Feedback> GetFeedbackById(int id);
-        Task AddFeedback(Feedback feedback);
-        Task UpdateFeedback(Feedback feedback);
-        Task DeleteFeedback(int id);
-    }
+    //public interface IFeedbackService
+    //{
+    //    Task<IEnumerable<Feedback>> GetAllFeedbacks();
+    //    Task<Feedback> GetFeedbackById(int id);
+    //    Task AddFeedback(Feedback feedback);
+    //    Task UpdateFeedback(Feedback feedback);
+    //    Task DeleteFeedback(int id);
+    //}
 
     public class FeedbackService : IFeedbackService
     {

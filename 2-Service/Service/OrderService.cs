@@ -10,25 +10,26 @@ using Microsoft.AspNetCore.Http;
 using _3_Repository.Repository;
 using BusinessObject.ResponseDTO;
 using BusinessObject;
+using _2_Service.Service.IService;
 
 namespace _2_Service.Service
 {
-    public interface IOrderService
-    {
-        Task<IEnumerable<Order>> GetAllOrdersAsync();
-        Task<Order> GetOrderByIdAsync(int id);
-        Task<IEnumerable<Order>> GetAllMyOrdersAsync();
-        Task AddOrderAsync(Order order);
-        Task UpdateOrderAsync(Order order);
-        Task DeleteOrderAsync(int id);
+    //public interface IOrderService
+    //{
+    //    Task<IEnumerable<Order>> GetAllOrdersAsync();
+    //    Task<Order> GetOrderByIdAsync(int id);
+    //    Task<IEnumerable<Order>> GetAllMyOrdersAsync();
+    //    Task AddOrderAsync(Order order);
+    //    Task UpdateOrderAsync(Order order);
+    //    Task DeleteOrderAsync(int id);
         
-        Task<bool> CheckCustomizeProductExists(int customizeProductId);
-        Task<decimal> CalculateRevenueAsync(int? day, int? month, int? year);
-        Task<List<ProductOrderQuantityDto>> GetOrderedProductQuantities();
-        Task<RevenueDto> GetMonthlyRevenueAsync(int year);
+    //    Task<bool> CheckCustomizeProductExists(int customizeProductId);
+    //    Task<decimal> CalculateRevenueAsync(int? day, int? month, int? year);
+    //    Task<List<ProductOrderQuantityDto>> GetOrderedProductQuantities();
+    //    Task<RevenueDto> GetMonthlyRevenueAsync(int year);
 
-        Task<bool> MarkOrderAsPaidAsync(int orderId);
-    }
+    //    Task<bool> MarkOrderAsPaidAsync(int orderId);
+    //}
 
     public class OrderService : IOrderService
     {

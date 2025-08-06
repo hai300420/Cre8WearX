@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using _2_Service.Service.IService;
 using _3_Repository.IRepository;
 using BusinessObject.Model;
 using Microsoft.EntityFrameworkCore;
@@ -10,15 +11,17 @@ using static BusinessObject.ResponseDTO.ResponseDTO;
 
 namespace _2_Service.Service
 {
-    public interface IDesignElementService
-    {
-        Task<IEnumerable<DesignElementDTO>> GetAllDesignElements();
-        Task<DesignElementDTO?> GetDesignElementById(int id);
-        Task AddDesignElement(DesignElement designElement);
-        Task UpdateDesignElement(DesignElement designElement);
-        Task DeleteDesignElement(int id);
+    //public interface IDesignElementService
+    //{
+    //    Task<IEnumerable<DesignElementDTO>> GetAllDesignElements();
+    //    Task<DesignElementDTO?> GetDesignElementById(int id);
+    //    Task AddDesignElement(DesignElement designElement);
+    //    Task UpdateDesignElement(DesignElement designElement);
+    //    Task DeleteDesignElement(int id);
 
-    }
+    //}
+
+
     public class DesignElementService : IDesignElementService
     {
         private readonly IDesignElementRepository _designElementRepository;
