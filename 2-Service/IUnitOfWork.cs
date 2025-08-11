@@ -16,6 +16,7 @@ namespace Service
         IDesignAreaRepository DesignAreaRepository { get; }
         IOrderRepository OrderRepository { get; }
         IOrderStageRepository OrderStageRepository { get; }
+        IPaymentRepository PaymentRepository { get; }
 
         Task<int> SaveChangesAsync();
         void Dispose();

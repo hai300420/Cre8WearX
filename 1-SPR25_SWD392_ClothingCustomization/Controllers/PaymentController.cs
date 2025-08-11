@@ -1,10 +1,6 @@
-﻿using System.Net;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using _2_Service.Momo;
+﻿using _2_Service.Momo;
 using _2_Service.Service;
+using _2_Service.Service.IService;
 using _2_Service.ThirdPartyService;
 using _2_Service.Utils;
 using _2_Service.Vnpay;
@@ -22,6 +18,11 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Service.Service;
+using System.Net;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using VNPAY.NET;
 using VNPAY.NET.Enums;
 using VNPAY.NET.Models;
@@ -1016,13 +1017,18 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                     return BadRequest(new { status = false, message = "No content or description found to extract OrderId." });
                 }
 
-                var orderIdMatch = Regex.Match(contentToParse, @"\d+");
+                // var orderIdMatch = Regex.Match(contentToParse, @"\d+");
+                var orderIdMatch = Regex.Match(contentToParse, @"don hang\s+(\d+)", RegexOptions.IgnoreCase);
                 if (!orderIdMatch.Success)
                 {
                     return BadRequest(new { status = false, message = "Could not extract OrderId from the content or description." });
                 }
 
-                int orderId = int.Parse(orderIdMatch.Value);
+                // int orderId = int.Parse(orderIdMatch.Value);
+                if (!int.TryParse(orderIdMatch.Groups[1].Value, out int orderId))
+                {
+                    return BadRequest(new { status = false, message = "Invalid OrderId format." });
+                }
 
                 // Check if order exists
                 var order = await _orderService.GetOrderByIdAsync(orderId);

@@ -64,6 +64,7 @@ namespace Repository.Repository
                 .Include(x => x.OrderStages)
                 .Include(o => o.Payments)
                 .Include(x => x.CustomizeProduct)
+                .OrderByDescending(x => x.OrderDate)
                 .ToListAsync();
 
             return orders;

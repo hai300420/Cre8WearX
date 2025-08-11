@@ -26,6 +26,7 @@ namespace Service
         private IDesignAreaRepository _designAreaRepository;
         private IOrderRepository _orderRepository;
         private IOrderStageRepository _orderStageRepository;
+        private IPaymentRepository _paymentRepository;
         private IDbContextTransaction _transaction;
         public UnitOfWork(ClothesCusShopContext context)
         {
@@ -118,6 +119,11 @@ namespace Service
         public IOrderStageRepository OrderStageRepository
         {
             get { return _orderStageRepository ??= new OrderStageRepository(_context); }
+        }
+
+        public IPaymentRepository PaymentRepository
+        {
+            get { return _paymentRepository ??= new PaymentRepository(_context); }
         }
 
         // Xóa dòng này đi:

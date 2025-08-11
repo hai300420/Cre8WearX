@@ -83,10 +83,36 @@ namespace Service.Service
                 return new ResponseDTO(400, "OrderStageName cannot be empty.");
             }
 
+            // Prevent duplicate stage for the same order
+            var existingOrderStage = (await _unitOfWork.OrderStageRepository.GetAllOrderStagesAsync())
+                             .FirstOrDefault(s => s.OrderId == orderStageDto.OrderId &&
+                             s.OrderStageName.Trim().ToLower() == orderStageDto.OrderStageName.Trim().ToLower());
 
+            if (existingOrderStage != null)
+            {
+                // Update instead of adding
+                existingOrderStage.UpdatedDate = DateTime.Now;
+                await _unitOfWork.OrderStageRepository.UpdateOrderStageAsync(existingOrderStage);
+                await _unitOfWork.SaveChangesAsync();
+
+                return new ResponseDTO(200, $"OrderStage '{orderStageDto.OrderStageName}' updated successfully", existingOrderStage);
+            }
+
+            //if (existingStage != null)
+            //{
+            //    return new ResponseDTO(409, $"OrderStage '{orderStageDto.OrderStageName}' already exists for OrderId {orderStageDto.OrderId}.");
+            //}
+
+            // Map and save OrderStage
             var orderStage = _mapper.Map<OrderStage>(orderStageDto);
             await _unitOfWork.OrderStageRepository.AddOrderStageAsync(orderStage);
             await _unitOfWork.SaveChangesAsync();
+
+            // Create payment if "Hoan thanh"
+            if (orderStageDto.OrderStageName.Trim() == "Hoàn thành")
+            {
+                await CreatePaymentForOrderAsync(existingOrder.OrderId, existingOrder.TotalPrice);
+            }
 
             return new ResponseDTO(201, "OrderStage created successfully", orderStage);
         }
@@ -106,7 +132,7 @@ namespace Service.Service
             return new ResponseDTO(200, "OrderStage deleted successfully.");
         }
 
-        // 🔹 New method to update an existing OrderStage
+        // New method to update an existing OrderStage
         public async Task<ResponseDTO> UpdateOrderStageAsync(OrderStage existingOrderStage)
         {
             var orderStage = await _unitOfWork.OrderStageRepository.GetLatestOrderStageByOrderIdAsync(existingOrderStage.OrderId);
@@ -142,6 +168,31 @@ namespace Service.Service
                 .Where(s => s.OrderId == orderId)
                 .OrderByDescending(s => s.OrderStageId)
                 .FirstOrDefaultAsync();
+        }
+
+
+        private async Task CreatePaymentForOrderAsync(int orderId, decimal? totalAmount)
+        {
+            // Check if a payment already exists for this order
+            var existingPayment = await _unitOfWork.PaymentRepository.GetPaymentByOrderIdAsync(orderId);
+
+            // Prevent duplication
+            if (existingPayment != null)
+            {
+                return;
+            }
+
+            var payment = new Payment
+            {
+                OrderId = orderId,
+                TotalAmount = totalAmount,
+                DepositAmount = totalAmount,
+                DepositPaid = 0.01m,
+                PaymentDate = DateTime.UtcNow
+            };
+
+            await _unitOfWork.PaymentRepository.SavePaymentAsync(payment);
+            await _unitOfWork.SaveChangesAsync();
         }
 
 

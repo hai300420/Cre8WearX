@@ -28,6 +28,12 @@ namespace _3_Repository.Repository
             return payments;
         }
 
+        public async Task<Payment?> GetPaymentByOrderIdAsync(int orderId)
+        {
+
+            return await _context.Payments.FirstOrDefaultAsync(o => o.OrderId == orderId);
+        }
+
         public async Task SavePaymentAsync(Payment payment)
         {
             _context.Payments.Add(payment);

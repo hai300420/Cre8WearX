@@ -1,4 +1,5 @@
 ﻿using _2_Service.Service;
+using _2_Service.Service.IService;
 using AutoMapper;
 using BusinessObject.Model;
 using Microsoft.AspNetCore.Hosting;

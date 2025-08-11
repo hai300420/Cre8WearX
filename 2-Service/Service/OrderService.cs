@@ -141,6 +141,7 @@ namespace _2_Service.Service
 
                 // Tự động tính TotalPrice
                 order.TotalPrice = order.Price * order.Quantity;
+                order.OrderDate = DateTime.Now;
 
                 // Add order
                 await _orderRepository.AddAsync(order);

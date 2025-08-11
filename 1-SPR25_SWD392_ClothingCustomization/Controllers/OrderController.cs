@@ -1,10 +1,11 @@
 ﻿using _2_Service.Service;
+using _2_Service.Service.IService;
 using BusinessObject.Model;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using static BusinessObject.RequestDTO.RequestDTO;
-using System.ComponentModel.DataAnnotations;
 
 namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
 {
@@ -37,7 +38,7 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
             var allOrders = await _orderService.GetAllOrdersAsync();
 
             // Get payments to determine payment type
-            var allPayments = await _paymentService.GetAllPaymentsAsync(); // You need this method
+            var allPayments = await _paymentService.GetAllPaymentsAsync();
             var paymentDict = allPayments.ToDictionary(p => p.OrderId, p => p);
 
             var paidOrders = allOrders
@@ -95,26 +96,39 @@ namespace _1_SPR25_SWD392_ClothingCustomization.Controllers
                     var depositAmount = payment.DepositAmount.GetValueOrDefault();
 
                     bool isOnline = total == depositPaid && total == depositAmount;
+                    bool isCash = depositPaid == 0.01m;
 
+                    //if ((paidOnline == null && paidInCash == null) || (paidOnline == true && paidInCash == true))
+                    //    return isOnline;
+
+                    //if (paidOnline == true)
+                    //    return isOnline;
+
+                    // If no filters or both are true → include both cash & online
                     if ((paidOnline == null && paidInCash == null) || (paidOnline == true && paidInCash == true))
-                        return isOnline;
+                        return isOnline || isCash;
 
                     if (paidOnline == true)
                         return isOnline;
+
+                    if (paidInCash == true)
+                        return isCash;
 
                     // not considered cash if it has a payment record
                     return false;
                 }
                 else
                 {
-                    // No payment = assumed paid in cash
+                    // No payment or deposit equal 0.01 = assumed paid in cash
                     if ((paidOnline == null && paidInCash == null) || (paidOnline == true && paidInCash == true))
                         return true;
 
-                    if (paidInCash == true)
-                        return true;
+                    return paidInCash == true;
 
-                    return false;
+                    //if (paidInCash == true)
+                    //    return true;
+
+                    //return false;
                 }
             });
 

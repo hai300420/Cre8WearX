@@ -1,4 +1,6 @@
 ﻿
+using _2_Service.Service.IService;
+using BusinessObject.Model;
 using Microsoft.AspNetCore.Mvc;
 using Service.Service;
 using static BusinessObject.RequestDTO.RequestDTO;
@@ -10,10 +12,12 @@ namespace SPR25_SWD392_ClothingCustomization.Controllers
     public class OrderStageController : ControllerBase
     {
         private readonly IOrderStageService _orderStageService;
+        private readonly IPaymentService _paymentService;
 
-        public OrderStageController(IOrderStageService orderStageService)
+        public OrderStageController(IOrderStageService orderStageService, IPaymentService paymentService)
         {
             _orderStageService = orderStageService;
+            _paymentService = paymentService;
         }
 
         [HttpGet]
@@ -33,6 +37,7 @@ namespace SPR25_SWD392_ClothingCustomization.Controllers
             try
             {
                 var response = await _orderStageService.CreateOrderStageAsync(orderStageDto);
+
                 return StatusCode(response.Status, response);
             }
             catch (ArgumentException ex)
@@ -64,6 +69,8 @@ namespace SPR25_SWD392_ClothingCustomization.Controllers
                 return StatusCode(500, new { message = "An unexpected error occurred", error = ex.Message });
             }
         }
+
+       
 
     }
 }

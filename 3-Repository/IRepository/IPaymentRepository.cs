@@ -11,5 +11,7 @@ namespace _3_Repository.IRepository
     {
         Task<IEnumerable<Payment>> GetAllPaymentsAsync();
         Task SavePaymentAsync(Payment payment);
+        Task<Payment?> GetPaymentByOrderIdAsync(int orderId);
+
     }
 }
